@@ -1,0 +1,293 @@
+import time
+import numpy as np
+import matplotlib.pyplot as plt 
+import rebound
+#import random
+
+
+
+start = time.time_ns()
+
+#random.seed()
+M_E=5.972e24
+M_S=1.989e30
+R_sun = 696340000
+AU = 1.5e11
+Rstar = 0.651*R_sun
+
+Ndays=500*365.25
+orbit_time = 365.25
+day_in_second = 60*60*24
+Nsteps = 10000
+times = np.linspace(0, Ndays*day_in_second, Nsteps)
+timestep = (times[2]-times[1])
+Nt = 6
+
+
+### Data from the paper for each planet and of the star###
+### Masses with error ###
+masses = np.zeros(7)
+masses[0] = 0.65*M_S
+masses[1] = 1.5*M_E
+masses[2] = 4.77*M_E
+masses[3] = 3.01*M_E
+masses[4] = 3.86*M_E
+masses[5] = 7.72*M_E
+masses[6] = 3.94*M_E
+
+mass_err1 = np.array([1-(0.44/1.50),1+(0.39/1.50)])
+mass_err2 = np.array([1-(0.68/4.77),1+(0.55/4.77)])
+mass_err3 = np.array([1-(1.03/3.01),1+(0.80/3.01)])
+mass_err4 = np.array([1-(0.94/3.86),1+(1.25/3.86)])
+mass_err5 = np.array([1-(1.52/7.72),1+(1.67/7.72)])
+mass_err6 = np.array([1-(1.62/3.94),1+(1.31/3.94)])
+
+### semi-major axes ###
+sma = np.zeros(6)
+sma[0] = 0.02607*AU
+sma[1] = 0.0370*AU
+sma[2] = 0.0592*AU
+sma[3] = 0.0783*AU
+sma[4] = 0.1039*AU
+sma[5] = 0.1275*AU
+
+# physical Radius ###
+R = np.zeros(6)
+R[0] = 0.01623*Rstar
+R[1] = 0.0235*Rstar
+R[2] = 0.03623*Rstar
+R[3] = 0.0311*Rstar
+R[4] = 0.0322*Rstar
+R[5] = 0.0404*Rstar
+
+### Hill- radii ###
+Rh = np.zeros(6)
+Rh[0] = (masses[1]/(3*masses[0]))**(1/3)*sma[0]
+Rh[1] = (masses[2]/(3*masses[0]))**(1/3)*sma[1]
+Rh[2] = (masses[3]/(3*masses[0]))**(1/3)*sma[2]
+Rh[3] = (masses[4]/(3*masses[0]))**(1/3)*sma[3]
+Rh[4] = (masses[5]/(3*masses[0]))**(1/3)*sma[4]
+Rh[5] = (masses[6]/(3*masses[0]))**(1/3)*sma[5]
+
+### Periods ###
+P = np.zeros(6)
+P[0] = 1.914558*day_in_second
+P[1] = 3.23845*day_in_second
+P[2] = 6.5577*day_in_second
+P[3] = 9.961881*day_in_second
+P[4] = 15.231915*day_in_second
+P[5] = 20.70950*day_in_second
+
+### Transit time in the observation ###
+T0 = np.zeros(6)
+T0[0] = 2458741.6365
+T0[1] = 2458741.4783
+T0[2] = 2458747.14623
+T0[3] = 2458751.4658
+T0[4] = 2458745.7178
+T0[5] = 2458748.0302
+
+### inclinations ###
+incl = np.zeros(6)
+incl[0] = np.deg2rad(0.4)
+incl[1] = np.deg2rad(0)
+incl[2] = np.deg2rad(0.18)
+incl[3] = np.deg2rad(0.31)
+incl[4] = np.deg2rad(0.323)
+incl[5] = np.deg2rad(0.523)
+
+### day zero date in JBD ###
+date_ci = 2458354
+
+### Calculation of initial position in orbit for each planet ###
+lambd = np.zeros(6)
+for i in range(6): 
+  lambd[i] = -(2*np.pi/P[i])*((T0[i]-date_ci)*day_in_second)-np.pi/2
+
+
+def zeroTo360(val):
+  while val < 0:
+    val += 2 * np.pi
+  while val > 2 * np.pi:
+    val -= 2 * np.pi
+  return (val * 180 / np.pi)
+
+### Initial conditions of the test particles ###
+"""
+ecc_low = 0
+ecc_high = 0.8
+sma_low = 0.01*AU
+sma_high = 0.035*AU
+inc_low = np.deg2rad(-0.5)
+inc_high = np.deg2rad(0.5)
+"""
+
+
+def setupSimulation():
+### Setting up the Simulation ###
+  sim = rebound.Simulation()
+  sim.collision = 'direct'
+  sim.collision_resolve = 'merge'
+  sim.G = 6.6743e-11
+  
+  
+  ### placing the test particles ###
+  '''
+  #e = np.zeros(Nt)
+  a = np.zeros(Nt)
+  incli = np.zeros(Nt)
+  omega = np.zeros(Nt)
+  f = np.zeros(Nt)
+  for particle_ in range(Nt):
+    omega[particle_] = np.random.uniform(0,2*np.pi)
+    f[particle_] = np.random.uniform(0,2*np.pi)
+    #e[particle_] = np.random.uniform(ecc_low,ecc_high)
+    a[particle_] = np.random.uniform(sma_low,sma_high)
+    incli[particle_] = np.random.uniform(inc_low,inc_high)
+  '''
+  
+  ###placing the planets and the star ###
+
+  TOI178 = rebound.Particle(m=masses[0],r=Rstar)
+  sim.add(TOI178)
+  TOI178_b = rebound.Particle(simulation=sim,primary=TOI178,m=masses[1], P=P[0], l=lambd[0],r=0.1*Rh[0],inc=incl[0])
+  TOI178_c = rebound.Particle(simulation=sim,primary=TOI178,m=masses[2], P=P[1], l=lambd[1],r=0.1*Rh[1],inc=incl[1])
+  TOI178_d = rebound.Particle(simulation=sim,primary=TOI178,m=masses[3], P=P[2], l=lambd[2],r=0.1*Rh[2],inc=incl[2])
+  TOI178_e = rebound.Particle(simulation=sim,primary=TOI178,m=masses[4], P=P[3], l=lambd[3],r=0.1*Rh[3],inc=incl[3])
+  TOI178_f = rebound.Particle(simulation=sim,primary=TOI178,m=masses[5], P=P[4], l=lambd[4],r=0.1*Rh[4],inc=incl[4])
+  TOI178_g = rebound.Particle(simulation=sim,primary=TOI178,m=masses[6], P=P[5], l=lambd[5],r=0.1*Rh[5],inc=incl[5])
+  #TOI178_f_moon = rebound.Particle(simulation=sim,primary=TOI178_f,m=0.0001*masses[5], a=0.5*Rh[4], e=0.0, inc=0.0)
+  
+  sim.add(TOI178_b)
+  sim.add(TOI178_c)
+  sim.add(TOI178_d)
+  sim.add(TOI178_e)
+  sim.add(TOI178_f)
+  sim.add(TOI178_g)
+  #sim.add(TOI178_f_moon)
+  
+  ### giving each test particle an invidual hash for post processing ###
+  """for n_particle in range(Nt):
+    particle_hash = nrun*100+n_particle
+    
+    sim.add(a=a[n_particle],omega=omega[n_particle],f=f[n_particle],hash=particle_hash,inc=incli[n_particle])
+  """
+  
+  sim.move_to_com()
+  
+  return sim
+
+
+def simulation(sim):
+### Definig simulation calculation and data entries ###
+  N = sim.N
+  #res1 = np.zeros(Nsteps)
+  #res2 = np.zeros(Nsteps)
+  #res3 = np.zeros(Nsteps)
+  # Store arrays with shape (nsteps, nplanets) so rows=time, columns=planet
+  ecc = np.zeros((Nsteps, Nt))
+  sma = np.zeros((Nsteps, Nt))
+  inc = np.zeros((Nsteps, Nt))
+  #mean_montion = np.zeros((Nsteps, Nt))
+  omega = np.zeros((Nsteps, Nt))
+  longitude = np.zeros((Nsteps, Nt))
+  orbital_node = np.zeros((Nsteps, Nt))
+  #hash = np.zeros((Nsteps, Nt))
+  
+  
+  
+  for i,t in enumerate(times):
+  ### time step and data collection ###
+    sim.integrate(t, exact_finish_time=0)
+    #print('done')
+    N = sim.N
+    
+    ps = sim.particles
+    
+    for j in range(1,N):
+      # store per-time-step in row i, planet index j-1 in column
+      ecc[i, j-1] = ps[j].e
+      sma[i, j-1] = ps[j].a / AU
+      inc[i, j-1] = np.rad2deg(ps[j].inc)
+      #mean_montion[i, j-1] = ps[j].n
+      omega[i, j-1] = ps[j].pomega
+      longitude[i, j-1] = ps[j].l
+      orbital_node[i, j-1] = ps[j].Omega
+      #hash[i, j-1] = ps[j].hash.value
+    
+    
+    ### optional log if particles got ejected or collided  ###
+    '''
+    for j_ in range(Nt):
+      if sma[j_,i] >= 0.3:
+         print('particle %05d removed'%(hash[j_,i]))
+         sim.remove(hash=hash[j_,i])
+    ''' 
+          
+    
+    
+      
+   
+    print("The time is %5d years "% (t/(60*60*24*365.25)))
+  
+  #print(sma[:,Nsteps-1])
+  #print(ecc[:,Nsteps-1])
+
+  return ecc,sma,inc,omega,longitude,orbital_node
+
+
+sim = setupSimulation()
+ecc,sma,inc,omega,longitude,orbital_node = simulation(sim)
+
+### saving data ###
+# Save arrays directly: rows = timesteps, columns = planets
+np.savetxt('ecc_planets.txt', ecc)
+np.savetxt('sma_planets.txt', sma)
+np.savetxt('inc_planets.txt', inc)
+np.savetxt('orbital_node_planets.txt', orbital_node)
+np.savetxt('omega_planets.txt', omega)
+np.savetxt('l_planets.txt', longitude)
+
+
+
+### resonant angle calculation for other purpose ###
+
+def resonant_angles(longitude):
+  # longitude has shape (n_planets, n_timesteps)
+  # build time series (use second axis = time)
+  phi0 = 3 * longitude[0, :] - 5 * longitude[1, :]
+  phi1 = 1 * longitude[1, :] - 2 * longitude[2, :]
+  phi2 = 2 * longitude[2, :] - 3 * longitude[3, :]
+  phi3 = 2 * longitude[3, :] - 3 * longitude[4, :]
+  phi4 = 3 * longitude[4, :] - 4 * longitude[5, :]
+
+  psi1 = phi1 - phi2
+  psi2 = phi2 - phi3
+  psi3 = 0.5 * (phi3 - phi4)
+
+  # Convert from radians to degrees in [0,360). zeroTo360 does this for scalars;
+  # here we use vectorized operations for speed and correctness.
+  def rad_to_deg_0_360(arr):
+    a = np.mod(arr, 2*np.pi)  # now in [0, 2pi)
+    return a * 180.0 / np.pi
+
+  phi0 = rad_to_deg_0_360(phi0)
+  phi1 = rad_to_deg_0_360(phi1)
+  phi2 = rad_to_deg_0_360(phi2)
+  phi3 = rad_to_deg_0_360(phi3)
+  phi4 = rad_to_deg_0_360(phi4)
+
+  psi1 = rad_to_deg_0_360(psi1)
+  psi2 = rad_to_deg_0_360(psi2)
+  psi3 = rad_to_deg_0_360(psi3)
+
+  return phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3
+
+#phi0, phi1, phi2, phi3, phi4, psi1,psi2,psi3 = resonant_angles(longitude)
+#np.savetxt('resonant_angles_planets.txt', np.array([phi0, phi1, phi2, phi3, phi4, psi1,psi2,psi3]))
+
+
+rebound.OrbitPlot(sim)
+plt.gca().set_aspect('equal', 'box')
+plt.savefig('orbit_plot_rebound_moon.png', dpi=300, bbox_inches='tight')
+plt.close()
