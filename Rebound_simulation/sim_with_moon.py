@@ -17,7 +17,7 @@ day_in_second = 60*60*24
 Nsteps = 10000
 times = np.linspace(0, Ndays*day_in_second, Nsteps)
 timestep = (times[2]-times[1])
-Nt = 6
+Nt = 7 # 6 planets + 1 moon
 
 
 # Data from the paper for each planet and of the star
@@ -115,6 +115,10 @@ def setupSimulation():
   sim.collision = 'direct'
   sim.collision_resolve = 'merge'
   sim.G = 6.6743e-11
+
+  moon_mass = 0.0001*masses[5]
+  a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f
+  r_moon = 0.001*Rh[4]  # radius of the moon
   
   # placing the planets and the star
 
@@ -133,6 +137,24 @@ def setupSimulation():
   sim.add(TOI178_e)
   sim.add(TOI178_f)
   sim.add(TOI178_g)
+  
+  # --- Mond zu Planet f hinzufügen ---
+  TOI178_f_moon = rebound.Particle(simulation=sim,primary=TOI178_f,m=moon_mass, r=r_moon, inc=incl[4], a=a_moon)
+
+  
+  """
+
+  # Mond manuell ueber baryzentrische Koordinaten hinzufuegen
+  # Position und Geschwindigkeit des Mondes relativ zu Planet f berechnen
+  r_rel = np.array([a_moon, 0., 0.]) # Mond statet auf x-Achse
+  v_rel = np.array([0., np.sqrt(sim.G * masses[5] / a_moon), 0.]) # Kreisbahngeschwindigkeit um Planet f
+  # baryzentrische Koordinaten des Mondes
+  r_abs = TOI178_f.xyz + r_rel
+  v_abs = TOI178_f.vxyz + v_rel
+
+  TOI178_f_moon = rebound.Particle(m=moon_mass, x=r_abs[0], y=r_abs[1], z=r_abs[2], vx=v_abs[0], vy=v_abs[1], vz=v_abs[2])
+    """
+  sim.add(TOI178_f_moon)
   
 
   sim.move_to_com()
@@ -181,19 +203,26 @@ def simulation(sim):
 
 
 sim = setupSimulation()
+ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
+ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
+plt.gca().set_aspect('equal', 'box')
+plt.savefig('plots/orbit_plot_moon_t0.png', dpi=300, bbox_inches='tight')
+plt.close()
+
 ecc,sma,inc,omega,longitude,orbital_node = simulation(sim)
 
 ### saving data ###
 # Save arrays directly: rows = timesteps, columns = planets
-np.savetxt('data_sim/ecc_planets.txt', ecc)
-np.savetxt('data_sim/sma_planets.txt', sma)
-np.savetxt('data_sim/inc_planets.txt', inc)
-np.savetxt('data_sim/orbital_node_planets.txt', orbital_node)
-np.savetxt('data_sim/omega_planets.txt', omega)
-np.savetxt('data_sim/l_planets.txt', longitude)
+# save date in new directory data_with_moon
+np.savetxt('data_with_moon/ecc_with_moon.txt', ecc)
+np.savetxt('data_with_moon/sma_with_moon.txt', sma)
+np.savetxt('data_with_moon/inc_with_moon.txt', inc)
+np.savetxt('data_with_moon/orbital_node_with_moon.txt', orbital_node)
+np.savetxt('data_with_moon/omega_with_moon.txt', omega)
+np.savetxt('data_with_moon/l_with_moon.txt', longitude)
 
 
 rebound.OrbitPlot(sim)
 plt.gca().set_aspect('equal', 'box')
-plt.savefig('plots/orbit_plot_rebound.png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/orbit_plot_moon_500y.png', dpi=300, bbox_inches='tight')
 plt.close()
