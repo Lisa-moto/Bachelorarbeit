@@ -197,8 +197,9 @@ plt.gca().set_aspect('equal', 'box')
 plt.savefig('plots/orbit_plot_moon_t0.png', dpi=300, bbox_inches='tight')
 plt.close()
 
-print("Anzahl der particles vor Simulation: ", sim.N)
+
 ecc,sma,inc,omega,longitude,orbital_node = simulation(sim)
+
 sim.save_to_file('sim_with_moon.bin')
 print("Anzahl der particles nach Simulation: ", sim.N)
 
@@ -213,7 +214,7 @@ np.savetxt('data_with_moon/omega_with_moon.txt', omega)
 np.savetxt('data_with_moon/l_with_moon.txt', longitude)
 
 
-ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6], color='blue')
+ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
 ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
 plt.gca().set_aspect('equal', 'box')
 plt.savefig('plots/orbit_plot_moon_500y.png', dpi=300, bbox_inches='tight')

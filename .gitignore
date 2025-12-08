@@ -14,3 +14,4 @@
 /.wget-hsts
 /slurm-1655021.out
 /test
+/.ws_user.conf
