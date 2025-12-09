@@ -10,13 +10,13 @@ import os
 here = os.path.dirname(__file__)
 
 # filenames
-f_sma = os.path.join(here, 'data_sim/sma_planets.txt')
-f_longitude = os.path.join(here, 'data_sim/l_planets.txt')
-f_omega = os.path.join(here, 'data_sim/omega_planets.txt')
-f_node = os.path.join(here, 'data_sim/orbital_node_planets.txt')
-f_ecc = os.path.join(here, 'data_sim/ecc_planets.txt')
-f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
-#f_res_angles = os.path.join(here, 'resonant_angles_planets.txt')
+f_sma = os.path.join(here, 'data_with_moon/sma_with_moon.txt')
+f_longitude = os.path.join(here, 'data_with_moon/l_with_moon.txt')
+f_omega = os.path.join(here, 'data_with_moon/omega_with_moon.txt')
+f_node = os.path.join(here, 'data_with_moon/orbital_node_with_moon.txt')
+f_ecc = os.path.join(here, 'data_with_moon/ecc_with_moon.txt')
+f_inc = os.path.join(here, 'data_with_moon/inc_with_moon.txt')
+#f_res_angles = os.path.join(here, 'resonant_angles_with_moon.txt')
 
 # load
 # shape: (nsteps, nplanets)
