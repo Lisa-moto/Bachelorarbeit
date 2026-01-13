@@ -39,7 +39,7 @@ fig, axes = plt.subplots(2, 1, figsize=(12, 9), sharex=True)
 axes = axes.flatten()
 
 # Plot semi major axis
-axes[0].plot(time_years, sma[:, 6], color='blue', label='Moon SMA')
+axes[0].plot(time_years, sma[:, 6], color='blue', marker='.', linestyle='none', markersize=2, label='Moon SMA')
 axes[0].set_ylabel('Semi Major Axis (AU)', fontsize=14)
 axes[0].set_title('Semi Major Axis of the Moon over Time', fontsize=16)
 axes[0].grid()
@@ -51,7 +51,7 @@ axes[0].plot(time_years, sma[:, 5], color='orange', label='Planet g SMA')
 axes[0].legend(fontsize=12)
 
 # Plot eccentricity
-axes[1].plot(time_years, ecc[:, 6], color='red', label='Moon Eccentricity')
+axes[1].plot(time_years, ecc[:, 6], color='red', marker='.', linestyle='none', markersize=2, label='Moon Eccentricity')
 axes[1].set_ylabel('Eccentricity', fontsize=14)
 axes[1].set_title('Eccentricity of the Moon over Time', fontsize=16)
 axes[1].grid()

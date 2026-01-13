@@ -1,4 +1,3 @@
-import time
 import numpy as np
 import matplotlib.pyplot as plt 
 import rebound
@@ -161,15 +160,30 @@ def simulation(sim):
   omega = np.zeros((Nsteps, Nt))
   longitude = np.zeros((Nsteps, Nt))
   orbital_node = np.zeros((Nsteps, Nt))
+  # array for coordinates of planet f and its moon
+  xyz_f = np.zeros((Nsteps,3))
+  xyz_moon = np.zeros((Nsteps,3))
   
   
   for i,t in enumerate(times):
   ### time step and data collection ###
     sim.integrate(t, exact_finish_time=0)
-    #print('done')
+
     N = sim.N
     
     ps = sim.particles
+
+    # store planet data
+    idx_f = 5
+    idx_moon = 7
+
+    xyz_f[i, 0] = ps[idx_f].x
+    xyz_f[i, 1] = ps[idx_f].y
+    xyz_f[i, 2] = ps[idx_f].z
+    xyz_moon[i, 0] = ps[idx_moon].x
+    xyz_moon[i, 1] = ps[idx_moon].y
+    xyz_moon[i, 2] = ps[idx_moon].z
+
     
     for j in range(1,N):
       # store per-time-step in row i, planet index j-1 in column
@@ -183,11 +197,9 @@ def simulation(sim):
     
    
     print("The time is %5d years "% (t/(60*60*24*365.25)))
-  
-  #print(sma[:,Nsteps-1])
-  #print(ecc[:,Nsteps-1])
 
-  return ecc,sma,inc,omega,longitude,orbital_node
+
+  return ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon
 
 
 sim = setupSimulation()
@@ -198,7 +210,7 @@ plt.savefig('plots/orbit_plot_moon_t0.png', dpi=300, bbox_inches='tight')
 plt.close()
 
 
-ecc,sma,inc,omega,longitude,orbital_node = simulation(sim)
+ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = simulation(sim)
 
 sim.save_to_file('sim_with_moon.bin')
 print("Anzahl der particles nach Simulation: ", sim.N)
@@ -212,6 +224,8 @@ np.savetxt('data_with_moon/inc_with_moon.txt', inc)
 np.savetxt('data_with_moon/orbital_node_with_moon.txt', orbital_node)
 np.savetxt('data_with_moon/omega_with_moon.txt', omega)
 np.savetxt('data_with_moon/l_with_moon.txt', longitude)
+np.savetxt('data_with_moon/xyz_f_with_moon.txt', xyz_f)
+np.savetxt('data_with_moon/xyz_moon.txt', xyz_moon)
 
 
 ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])

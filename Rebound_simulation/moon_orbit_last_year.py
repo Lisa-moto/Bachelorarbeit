@@ -1,0 +1,71 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# -----------------------------
+# load data
+# -----------------------------
+xyz_f = np.loadtxt("data_with_moon/xyz_f_with_moon.txt")
+xyz_moon = np.loadtxt("data_with_moon/xyz_moon.txt")
+
+# -----------------------------
+# compute moon orbit in planet f frame
+# -----------------------------
+x_rel = xyz_moon[:, 0] - xyz_f[:, 0]
+y_rel = xyz_moon[:, 1] - xyz_f[:, 1]
+z_rel = xyz_moon[:, 2] - xyz_f[:, 2]
+
+# only plot last year
+Nsteps = xyz_f.shape[0]
+steps_per_year = int(Nsteps/500) # as total simulation time is 500 years
+x = x_rel[-steps_per_year:]
+y = y_rel[-steps_per_year:]
+z = z_rel[-steps_per_year:]
+
+# -----------------------------
+# Gemeinsame Achsengrenzen bestimmen
+# -----------------------------
+max_extent = np.max(np.abs([x, y, z]))
+lim = 1.05 * max_extent   # kleiner Rand
+
+# -----------------------------
+# Plot
+# -----------------------------
+fig, axes = plt.subplots(1, 3, figsize=(15,5))
+
+# xy plot
+axes[0].scatter(x, y, s=4, alpha=0.7)
+axes[0].scatter(0, 0, s=60, color="black")
+axes[0].set_xlabel("x [m]")
+axes[0].set_ylabel("y [m]")
+axes[0].set_title("x–y projection")
+axes[0].set_xlim(-lim, lim)
+axes[0].set_ylim(-lim, lim)
+axes[0].set_aspect("equal")
+axes[0].grid(True)
+
+# xz plot
+axes[1].scatter(x, z, s=4, alpha=0.7)
+axes[1].scatter(0, 0, s=60, color="black")
+axes[1].set_xlabel("x [m]")
+axes[1].set_ylabel("z [m]")
+axes[1].set_title("x–z projection")
+axes[1].set_xlim(-lim, lim)
+axes[1].set_ylim(-lim, lim)
+axes[1].set_aspect("equal")
+axes[1].grid(True)
+
+# yz plot
+axes[2].scatter(y, z, s=4, alpha=0.7)
+axes[2].scatter(0, 0, s=60, color="black")
+axes[2].set_xlabel("y [m]")
+axes[2].set_ylabel("z [m]")
+axes[2].set_title("y–z projection")
+axes[2].set_xlim(-lim, lim)
+axes[2].set_ylim(-lim, lim)
+axes[2].set_aspect("equal")
+axes[2].grid(True)
+
+plt.suptitle("Moon orbit around TOI-178 f (last simulation year)", fontsize=14)
+plt.tight_layout()
+plt.savefig("plots/moon_orbit_3projections_last_year.png", dpi=300, bbox_inches="tight")
+plt.close()
