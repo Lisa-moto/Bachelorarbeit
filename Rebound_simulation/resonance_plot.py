@@ -96,11 +96,17 @@ for ax in axes:
   ax.set_ylim(0, 360)
   ax.grid(alpha=0.25)
 
-for i in range(n_angles):
+for i in range(5):
   ax = axes[i]
   ax.plot(time_years, angles[i], lw=0.8)
-  ax.set_title(f'angle {i}')
-  ax.set_ylabel('deg')
+  ax.set_title(f'$\phi_{i}$')
+  ax.set_ylabel('resonant angle [deg]')
+
+for i in range(3):
+  ax = axes[i+5]
+  ax.plot(time_years, angles[i+5], lw=0.8)
+  ax.set_title(f'$\psi_{i+1}$')
+  ax.set_ylabel('resonant angle [deg]')
 
 # turn off any unused axes
 for j in range(n_angles, len(axes)):
