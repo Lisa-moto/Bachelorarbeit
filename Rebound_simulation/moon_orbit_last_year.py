@@ -17,9 +17,10 @@ z_rel = xyz_moon[:, 2] - xyz_f[:, 2]
 # only plot last year
 Nsteps = xyz_f.shape[0]
 steps_per_year = int(Nsteps/500) # as total simulation time is 500 years
-x = x_rel[-steps_per_year:]
-y = y_rel[-steps_per_year:]
-z = z_rel[-steps_per_year:]
+N_years = 5 # last N years
+x = x_rel[-steps_per_year*N_years:]
+y = y_rel[-steps_per_year*N_years:]
+z = z_rel[-steps_per_year*N_years:]
 
 # -----------------------------
 # Gemeinsame Achsengrenzen bestimmen
@@ -65,7 +66,7 @@ axes[2].set_ylim(-lim, lim)
 axes[2].set_aspect("equal")
 axes[2].grid(True)
 
-plt.suptitle("Moon orbit around TOI-178 f (last simulation year)", fontsize=14)
+plt.suptitle(f"Moon orbit around TOI-178 f (last {N_years} simulation year)", fontsize=14)
 plt.tight_layout()
-plt.savefig("plots/moon_orbit_3projections_last_year.png", dpi=300, bbox_inches="tight")
+plt.savefig(f"plots/moon_orbit_3projections_last_{N_years}_years.png", dpi=300, bbox_inches="tight")
 plt.close()
