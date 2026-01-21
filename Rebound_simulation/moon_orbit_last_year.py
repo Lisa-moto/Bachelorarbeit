@@ -31,7 +31,7 @@ lim = 1.05 * max_extent   # kleiner Rand
 # -----------------------------
 # Plot
 # -----------------------------
-fig, axes = plt.subplots(1, 3, figsize=(15,5))
+fig, axes = plt.subplots(1, 3, figsize=(15,6))
 
 # xy plot
 axes[0].scatter(x, y, s=4, alpha=0.7)
@@ -66,7 +66,7 @@ axes[2].set_ylim(-lim, lim)
 axes[2].set_aspect("equal")
 axes[2].grid(True)
 
-plt.suptitle(f"Moon orbit around TOI-178 f (last {N_years} simulation year)", fontsize=14)
+plt.suptitle(f"Moon orbit around TOI-178 f (last {N_years} simulation years)", fontsize=14)
 plt.tight_layout()
 plt.savefig(f"plots/moon_orbit_3projections_last_{N_years}_years.png", dpi=300, bbox_inches="tight")
 plt.close()

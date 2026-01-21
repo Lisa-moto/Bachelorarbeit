@@ -116,9 +116,9 @@ def setupSimulation():
   sim.G = 6.6743e-11
 
   # moon parameters
-  moon_mass = 0.001*masses[5]
   a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f; moon blieb mit 0.2Rh im Orbit stabil
   r_moon = 0.001*Rh[4]  # radius of the moon
+  moon_mass = 0.001*masses[5]
   
   # placing the planets and the star
 
