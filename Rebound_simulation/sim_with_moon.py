@@ -94,7 +94,7 @@ incl[5] = np.deg2rad(0.523)
 # moon parameters
 a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f; moon blieb mit 0.2Rh im Orbit stabil
 r_moon = 0.001*Rh[4]  # radius of the moon
-moon_mass = 0.002*masses[5]
+moon_mass = 0.004*masses[5]
 m_moon_short = moon_mass/masses[5]
 
 ### day zero date in JBD ###
