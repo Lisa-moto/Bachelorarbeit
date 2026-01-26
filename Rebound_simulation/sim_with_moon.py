@@ -91,6 +91,12 @@ incl[3] = np.deg2rad(0.31)
 incl[4] = np.deg2rad(0.323)
 incl[5] = np.deg2rad(0.523)
 
+# moon parameters
+a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f; moon blieb mit 0.2Rh im Orbit stabil
+r_moon = 0.001*Rh[4]  # radius of the moon
+moon_mass = 0.002*masses[5]
+m_moon_short = moon_mass/masses[5]
+
 ### day zero date in JBD ###
 date_ci = 2458354
 
@@ -114,11 +120,6 @@ def setupSimulation():
   sim.collision = 'direct'
   sim.collision_resolve = 'merge'
   sim.G = 6.6743e-11
-
-  # moon parameters
-  a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f; moon blieb mit 0.2Rh im Orbit stabil
-  r_moon = 0.001*Rh[4]  # radius of the moon
-  moon_mass = 0.001*masses[5]
   
   # placing the planets and the star
 
@@ -206,30 +207,30 @@ sim = setupSimulation()
 ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6], color='blue')
 ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
 plt.gca().set_aspect('equal', 'box')
-plt.savefig('plots/orbit_plot_moon_t0.png', dpi=300, bbox_inches='tight')
+plt.savefig(f"plots_m={m_moon_short}/orbit_plot_moon_t0_m={m_moon_short}.png", dpi=300, bbox_inches='tight')
 plt.close()
 
 
 ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = simulation(sim)
 
-sim.save_to_file('sim_with_moon.bin')
+sim.save_to_file(f'sim_with_moon_m={m_moon_short}.bin')
 print("Anzahl der particles nach Simulation: ", sim.N)
 
 ### saving data ###
 # Save arrays directly: rows = timesteps, columns = planets
 # save date in new directory data_with_moon
-np.savetxt('data_with_moon/ecc_with_moon.txt', ecc)
-np.savetxt('data_with_moon/sma_with_moon.txt', sma)
-np.savetxt('data_with_moon/inc_with_moon.txt', inc)
-np.savetxt('data_with_moon/orbital_node_with_moon.txt', orbital_node)
-np.savetxt('data_with_moon/omega_with_moon.txt', omega)
-np.savetxt('data_with_moon/l_with_moon.txt', longitude)
-np.savetxt('data_with_moon/xyz_f_with_moon.txt', xyz_f)
-np.savetxt('data_with_moon/xyz_moon.txt', xyz_moon)
+np.savetxt(f'data_with_moon/ecc_with_moon_m={m_moon_short}.txt', ecc)
+np.savetxt(f'data_with_moon/sma_with_moon_m={m_moon_short}.txt', sma)
+np.savetxt(f'data_with_moon/inc_with_moon_m={m_moon_short}.txt', inc)
+np.savetxt(f'data_with_moon/orbital_node_with_moon_m={m_moon_short}.txt', orbital_node)
+np.savetxt(f'data_with_moon/omega_with_moon_m={m_moon_short}.txt', omega)
+np.savetxt(f'data_with_moon/l_with_moon_m={m_moon_short}.txt', longitude)
+np.savetxt(f'data_with_moon/xyz_f_with_moon_m={m_moon_short}.txt', xyz_f)
+np.savetxt(f'data_with_moon/xyz_moon_m={m_moon_short}.txt', xyz_moon)
 
 
 ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
 ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
 plt.gca().set_aspect('equal', 'box')
-plt.savefig('plots/orbit_plot_moon_500y.png', dpi=300, bbox_inches='tight')
+plt.savefig(f'plots_m={m_moon_short}/orbit_plot_moon_500y_m={m_moon_short}.png', dpi=300, bbox_inches='tight')
 plt.close()

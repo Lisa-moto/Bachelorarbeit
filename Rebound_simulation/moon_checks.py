@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
+m_moon_short = 0.002  # mass of the moon relative to planet f
 
 ##########################################################################################
 # load data
@@ -10,12 +11,12 @@ import os
 here = os.path.dirname(__file__)
 
 # filenames
-f_sma = os.path.join(here, 'data_with_moon/sma_with_moon.txt')
-f_longitude = os.path.join(here, 'data_with_moon/l_with_moon.txt')
-f_omega = os.path.join(here, 'data_with_moon/omega_with_moon.txt')
-f_node = os.path.join(here, 'data_with_moon/orbital_node_with_moon.txt')
-f_ecc = os.path.join(here, 'data_with_moon/ecc_with_moon.txt')
-f_inc = os.path.join(here, 'data_with_moon/inc_with_moon.txt')
+f_sma = os.path.join(here, f'data_with_moon/sma_with_moon_m={m_moon_short}.txt')
+f_longitude = os.path.join(here, f'data_with_moon/l_with_moon_m={m_moon_short}.txt')
+f_omega = os.path.join(here, f'data_with_moon/omega_with_moon_m={m_moon_short}.txt')
+f_node = os.path.join(here, f'data_with_moon/orbital_node_with_moon_m={m_moon_short}.txt')
+f_ecc = os.path.join(here, f'data_with_moon/ecc_with_moon_m={m_moon_short}.txt')
+f_inc = os.path.join(here, f'data_with_moon/inc_with_moon_m={m_moon_short}.txt')
 
 # load
 # shape: (nsteps, nplanets)
@@ -59,7 +60,7 @@ axes[1].grid()
 axes[1].legend(fontsize=12)
 
 plt.tight_layout()
-out = os.path.join(here, 'plots/moon_sma_ecc.png')
+out = os.path.join(here, f'plots_m={m_moon_short}/moon_sma_ecc_m={m_moon_short}.png')
 plt.savefig(out, dpi=300, bbox_inches='tight')
 print(f"Saved {out}")
 plt.close()

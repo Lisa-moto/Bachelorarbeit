@@ -1,11 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+m_moon_short = 0.002  # mass of the moon relative to planet f
+
 # -----------------------------
 # load data
 # -----------------------------
-xyz_f = np.loadtxt("data_with_moon/xyz_f_with_moon.txt")
-xyz_moon = np.loadtxt("data_with_moon/xyz_moon.txt")
+xyz_f = np.loadtxt(f"data_with_moon/xyz_f_with_moon_m={m_moon_short}.txt")
+xyz_moon = np.loadtxt(f"data_with_moon/xyz_moon_m={m_moon_short}.txt")
 
 # -----------------------------
 # compute moon orbit in planet f frame
@@ -68,5 +70,5 @@ axes[2].grid(True)
 
 plt.suptitle(f"Moon orbit around TOI-178 f (last {N_years} simulation years)", fontsize=14)
 plt.tight_layout()
-plt.savefig(f"plots/moon_orbit_3projections_last_{N_years}_years.png", dpi=300, bbox_inches="tight")
+plt.savefig(f"plots_m={m_moon_short}/moon_orbit_3projections_last_{N_years}_years_m={m_moon_short}.png", dpi=300, bbox_inches="tight")
 plt.close()
