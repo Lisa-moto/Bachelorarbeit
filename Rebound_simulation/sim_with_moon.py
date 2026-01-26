@@ -96,6 +96,8 @@ a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f; moon blieb 
 r_moon = 0.001*Rh[4]  # radius of the moon
 moon_mass = 0.004*masses[5]
 m_moon_short = moon_mass/masses[5]
+# bei a=0.47Rh war der Mond bis Jahr 45 da bei m=0.001m_f, bei m=0.002 bis Jahr 69, bei m=0.003 bis Jahr 399,
+# bei m=0.004 bis Jahr 500 stabil im Orbit
 
 ### day zero date in JBD ###
 date_ci = 2458354
@@ -204,18 +206,20 @@ def simulation(sim):
 
 
 sim = setupSimulation()
+"""
 ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6], color='blue')
 ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
 plt.gca().set_aspect('equal', 'box')
 plt.savefig(f"plots_m={m_moon_short}/orbit_plot_moon_t0_m={m_moon_short}.png", dpi=300, bbox_inches='tight')
 plt.close()
-
+"""
 
 ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = simulation(sim)
 
-sim.save_to_file(f'sim_with_moon_m={m_moon_short}.bin')
+#sim.save_to_file(f'sim_with_moon_m={m_moon_short}.bin')
 print("Anzahl der particles nach Simulation: ", sim.N)
 
+"""
 ### saving data ###
 # Save arrays directly: rows = timesteps, columns = planets
 # save date in new directory data_with_moon
@@ -234,3 +238,4 @@ ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, c
 plt.gca().set_aspect('equal', 'box')
 plt.savefig(f'plots_m={m_moon_short}/orbit_plot_moon_500y_m={m_moon_short}.png', dpi=300, bbox_inches='tight')
 plt.close()
+"""
