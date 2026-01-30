@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.004  # mass of the moon relative to planet f
+m_moon_short = 0.001  # mass of the moon relative to planet f
 
 ##########################################################################################
 # load data
