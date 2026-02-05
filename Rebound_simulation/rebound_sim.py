@@ -83,7 +83,7 @@ T0[3] = 2458751.4658
 T0[4] = 2458745.7178
 T0[5] = 2458748.0302
 
-# inclinations
+# relative inclinations
 incl = np.zeros(6)
 incl[0] = np.deg2rad(0.4)
 incl[1] = np.deg2rad(0)
@@ -92,6 +92,26 @@ incl[3] = np.deg2rad(0.31)
 incl[4] = np.deg2rad(0.323)
 incl[5] = np.deg2rad(0.523)
 
+"""
+# inc (deg)
+incl = np.zeros(6)
+incl[0] = np.deg2rad(88.800)
+incl[1] = np.deg2rad(88.400)
+incl[2] = np.deg2rad(88.580)
+incl[3] = np.deg2rad(88.710)
+incl[4] = np.deg2rad(88.723)
+incl[5] = np.deg2rad(88.823)
+
+# lambda (deg)
+lambd = np.zeros(6)
+lambd[0] = 1.772610
+lambd[1] = 0.632669
+lambd[2] = -1.268245
+lambd[3] = -0.934120
+lambd[4] = 0.207905
+lambd[5] = -1.737573
+"""
+
 ### day zero date in JBD ###
 date_ci = 2458354
 
@@ -99,14 +119,6 @@ date_ci = 2458354
 lambd = np.zeros(6)
 for i in range(6): 
   lambd[i] = -(2*np.pi/P[i])*((T0[i]-date_ci)*day_in_second)-np.pi/2
-
-
-def zeroTo360(val):
-  while val < 0:
-    val += 2 * np.pi
-  while val > 2 * np.pi:
-    val -= 2 * np.pi
-  return (val * 180 / np.pi)
 
 
 def setupSimulation():
@@ -156,7 +168,6 @@ def simulation(sim):
   for i,t in enumerate(times):
   ### time step and data collection ###
     sim.integrate(t, exact_finish_time=0)
-    #print('done')
     N = sim.N
     
     ps = sim.particles
@@ -173,9 +184,7 @@ def simulation(sim):
     
    
     print("The time is %5d years "% (t/(60*60*24*365.25)))
-  
-  #print(sma[:,Nsteps-1])
-  #print(ecc[:,Nsteps-1])
+
 
   return ecc,sma,inc,omega,longitude,orbital_node
 

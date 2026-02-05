@@ -40,11 +40,11 @@ mass_err6 = np.array([1-(1.62/3.94),1+(1.31/3.94)])
 # semi-major axes
 sma = np.zeros(6)
 sma[0] = 0.02607*AU
-sma[1] = 0.0370*AU
-sma[2] = 0.0592*AU
-sma[3] = 0.0783*AU
-sma[4] = 0.1039*AU
-sma[5] = 0.1275*AU
+sma[1] = 0.03700*AU
+sma[2] = 0.05920*AU
+sma[3] = 0.07830*AU
+sma[4] = 0.10390*AU
+sma[5] = 0.12750*AU
 
 # physical Radius
 R = np.zeros(6)
@@ -54,6 +54,11 @@ R[2] = 0.03623*Rstar
 R[3] = 0.0311*Rstar
 R[4] = 0.0322*Rstar
 R[5] = 0.0404*Rstar
+
+# print radius in Earth radii
+for i in range(6):
+  R_earth = R[i]/(6378137)
+  print("Radius planet", i+1, ": ", R_earth, "R_Earth")
 
 # Hill- radii
 Rh = np.zeros(6)
@@ -67,8 +72,8 @@ Rh[5] = (masses[6]/(3*masses[0]))**(1/3)*sma[5]
 # Periods
 P = np.zeros(6)
 P[0] = 1.914558*day_in_second
-P[1] = 3.23845*day_in_second
-P[2] = 6.5577*day_in_second
+P[1] = 3.238450*day_in_second
+P[2] = 6.557700*day_in_second
 P[3] = 9.961881*day_in_second
 P[4] = 15.231915*day_in_second
 P[5] = 20.70950*day_in_second
@@ -82,7 +87,7 @@ T0[3] = 2458751.4658
 T0[4] = 2458745.7178
 T0[5] = 2458748.0302
 
-# inclinations
+# relative inclinations
 incl = np.zeros(6)
 incl[0] = np.deg2rad(0.4)
 incl[1] = np.deg2rad(0)
@@ -90,6 +95,26 @@ incl[2] = np.deg2rad(0.18)
 incl[3] = np.deg2rad(0.31)
 incl[4] = np.deg2rad(0.323)
 incl[5] = np.deg2rad(0.523)
+
+"""
+# inc (deg)
+incl = np.zeros(6)
+incl[0] = np.deg2rad(88.800)
+incl[1] = np.deg2rad(88.400)
+incl[2] = np.deg2rad(88.580)
+incl[3] = np.deg2rad(88.710)
+incl[4] = np.deg2rad(88.723)
+incl[5] = np.deg2rad(88.823)
+
+# lambda (deg) 
+lambd = np.zeros(6)
+lambd[0] = 1.772610
+lambd[1] = 0.632669
+lambd[2] = -1.268245
+lambd[3] = -0.934120
+lambd[4] = 0.207905
+lambd[5] = -1.737573
+"""
 
 # moon parameters
 a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f; moon blieb mit 0.2Rh im Orbit stabil
@@ -108,12 +133,8 @@ for i in range(6):
   lambd[i] = -(2*np.pi/P[i])*((T0[i]-date_ci)*day_in_second)-np.pi/2
 
 
-def zeroTo360(val):
-  while val < 0:
-    val += 2 * np.pi
-  while val > 2 * np.pi:
-    val -= 2 * np.pi
-  return (val * 180 / np.pi)
+for i in range(6):
+  print("lambda", i+1, ": ", lambd[i])
 
 
 def setupSimulation():
@@ -220,7 +241,7 @@ plt.close()
 
 ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = simulation(sim)
 
-#sim.save_to_file(f'sim_with_moon_m={m_moon_short}.bin')
+sim.save_to_file(f'sim_with_moon_m={m_moon_short}.bin')
 print("Anzahl der particles nach Simulation: ", sim.N)
 
 
