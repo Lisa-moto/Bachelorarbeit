@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 m_moon_short = 0.001  # mass of the moon relative to planet f
+a_moon_short = 0.4  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
 # load data
@@ -20,12 +21,12 @@ f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
 
 """
 # filenames
-f_sma = os.path.join(here, f'data_with_moon/sma_with_moon_m={m_moon_short}.txt')
-f_longitude = os.path.join(here, f'data_with_moon/l_with_moon_m={m_moon_short}.txt')
-f_omega = os.path.join(here, f'data_with_moon/omega_with_moon_m={m_moon_short}.txt')
-f_node = os.path.join(here, f'data_with_moon/orbital_node_with_moon_m={m_moon_short}.txt')
-f_ecc = os.path.join(here, f'data_with_moon/ecc_with_moon_m={m_moon_short}.txt')
-f_inc = os.path.join(here, f'data_with_moon/inc_with_moon_m={m_moon_short}.txt')
+f_sma = os.path.join(here, f'data_with_moon/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_longitude = os.path.join(here, f'data_with_moon/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_omega = os.path.join(here, f'data_with_moon/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_node = os.path.join(here, f'data_with_moon/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_ecc = os.path.join(here, f'data_with_moon/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_inc = os.path.join(here, f'data_with_moon/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
 """
 
 # load

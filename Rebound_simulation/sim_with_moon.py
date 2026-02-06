@@ -119,7 +119,8 @@ lambd[5] = -1.737573
 # moon parameters
 a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f; moon blieb mit 0.2Rh im Orbit stabil
 r_moon = 0.001*Rh[4]  # radius of the moon
-moon_mass = 0.001*masses[5]
+moon_mass = 0.471*masses[5]
+a_moon_short = a_moon/Rh[4]
 m_moon_short = moon_mass/masses[5]
 # bei a=0.47Rh war der Mond bis Jahr 45 da bei m=0.001m_f, bei m=0.002 bis Jahr 69, bei m=0.003 bis Jahr 399,
 # bei m=0.004 bis Jahr 500 stabil im Orbit
@@ -204,14 +205,29 @@ def simulation(sim):
     xyz_f[i, 0] = ps[idx_f].x
     xyz_f[i, 1] = ps[idx_f].y
     xyz_f[i, 2] = ps[idx_f].z
-    xyz_moon[i, 0] = ps[idx_moon].x
-    xyz_moon[i, 1] = ps[idx_moon].y
-    xyz_moon[i, 2] = ps[idx_moon].z
 
-    o = sim.particles[idx_moon].orbit(primary=sim.particles[idx_f])  # moon orbiting planet f
+    # when moon is ejected, store NaN for its coordinates and orbital elements
+    try:
+      xyz_moon[i, 0] = ps[idx_moon].x
+      xyz_moon[i, 1] = ps[idx_moon].y
+      xyz_moon[i, 2] = ps[idx_moon].z
+      o = sim.particles[idx_moon].orbit(primary=sim.particles[idx_f])  # moon orbiting planet f
+      ecc[i, idx_moon-1] = o.e
+      sma[i, idx_moon-1] = o.a / AU
+    except AttributeError:
+      # idx_moon = idx_moon - 1 # when two planets collided
+      # xyz_moon[i, 0] = ps[idx_moon].x
+      # xyz_moon[i, 1] = ps[idx_moon].y
+      # xyz_moon[i, 2] = ps[idx_moon].z
+      # o = sim.particles[idx_moon].orbit(primary=sim.particles[idx_f])  # moon orbiting planet f
+      # ecc[i, idx_moon-1] = o.e
+      # sma[i, idx_moon-1] = o.a / AU
+      xyz_moon[i, :] = np.nan
+      ecc[i, idx_moon-1] = np.nan
+      sma[i, idx_moon-1] = np.nan
 
     
-    for j in range(1,N):
+    for j in range(1,N-1):  # skip the moon at index 7
       # store per-time-step in row i, planet index j-1 in column
       ecc[i, j-1] = ps[j].e
       sma[i, j-1] = ps[j].a / AU
@@ -221,9 +237,6 @@ def simulation(sim):
       longitude[i, j-1] = ps[j].l
       orbital_node[i, j-1] = ps[j].Omega
     
-    ecc[i, idx_moon-1] = o.e
-    sma[i, idx_moon-1] = o.a / AU
-   
     print("The time is %5d years "% (t/(60*60*24*365.25)))
 
 
@@ -232,34 +245,35 @@ def simulation(sim):
 
 sim = setupSimulation()
 
-ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6], color='blue')
+# Orbit plot at t=0
+ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
 ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
 plt.gca().set_aspect('equal', 'box')
-plt.savefig(f"plots_m={m_moon_short}/orbit_plot_moon_t0_m={m_moon_short}.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"plots_a={a_moon_short}/plots_m={m_moon_short}/orbit_plot_moon_t0_m={m_moon_short}.png", dpi=300, bbox_inches='tight')
 plt.close()
 
 
 ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = simulation(sim)
 
-sim.save_to_file(f'sim_with_moon_m={m_moon_short}.bin')
 print("Anzahl der particles nach Simulation: ", sim.N)
 
 
 ### saving data ###
+sim.save_to_file(f'simulation_save/sim_with_moon_a={a_moon_short}_m={m_moon_short}.bin')
 # Save arrays directly: rows = timesteps, columns = planets
 # save date in new directory data_with_moon
-np.savetxt(f'data_with_moon/ecc_with_moon_m={m_moon_short}.txt', ecc)
-np.savetxt(f'data_with_moon/sma_with_moon_m={m_moon_short}.txt', sma)
-np.savetxt(f'data_with_moon/inc_with_moon_m={m_moon_short}.txt', inc)
-np.savetxt(f'data_with_moon/orbital_node_with_moon_m={m_moon_short}.txt', orbital_node)
-np.savetxt(f'data_with_moon/omega_with_moon_m={m_moon_short}.txt', omega)
-np.savetxt(f'data_with_moon/l_with_moon_m={m_moon_short}.txt', longitude)
-np.savetxt(f'data_with_moon/xyz_f_with_moon_m={m_moon_short}.txt', xyz_f)
-np.savetxt(f'data_with_moon/xyz_moon_m={m_moon_short}.txt', xyz_moon)
+np.savetxt(f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt', ecc)
+np.savetxt(f'data_with_moon_a={a_moon_short}/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt', sma)
+np.savetxt(f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt', inc)
+np.savetxt(f'data_with_moon_a={a_moon_short}/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt', orbital_node)
+np.savetxt(f'data_with_moon_a={a_moon_short}/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt', omega)
+np.savetxt(f'data_with_moon_a={a_moon_short}/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt', longitude)
+np.savetxt(f'data_with_moon_a={a_moon_short}/xyz_f_with_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_f)
+np.savetxt(f'data_with_moon_a={a_moon_short}/xyz_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_moon)
 
-
-ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
-ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
+# Orbit plot at t=500 years
+ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,])
+ob2 = rebound.OrbitPlot(sim, particles=[6], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
 plt.gca().set_aspect('equal', 'box')
-plt.savefig(f'plots_m={m_moon_short}/orbit_plot_moon_500y_m={m_moon_short}.png', dpi=300, bbox_inches='tight')
+plt.savefig(f'plots_a={a_moon_short}/plots_m={m_moon_short}/orbit_plot_moon_500y_a={a_moon_short}_m={m_moon_short}.png', dpi=300, bbox_inches='tight')
 plt.close()
