@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.01  # mass of the moon relative to planet f
+m_moon_short = 0.472  # mass of the moon relative to planet f
 a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
@@ -12,20 +12,20 @@ a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 here = os.path.dirname(__file__)
 
 # filenames
-# f_sma = os.path.join(here, f'data_with_moon_a={a_moon_short}/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_longitude = os.path.join(here, f'data_with_moon_a={a_moon_short}/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_omega = os.path.join(here, f'data_with_moon_a={a_moon_short}/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_node = os.path.join(here, f'data_with_moon_a={a_moon_short}/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_ecc = os.path.join(here, f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_inc = os.path.join(here, f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_sma = os.path.join(here, f'data_with_moon_a={a_moon_short}/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_longitude = os.path.join(here, f'data_with_moon_a={a_moon_short}/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_omega = os.path.join(here, f'data_with_moon_a={a_moon_short}/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_node = os.path.join(here, f'data_with_moon_a={a_moon_short}/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_ecc = os.path.join(here, f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_inc = os.path.join(here, f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
 
 # perpendicular moon files
-f_sma = os.path.join(here, f'data_perpendicular_moon/sma_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_longitude = os.path.join(here, f'data_perpendicular_moon/l_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_omega = os.path.join(here, f'data_perpendicular_moon/omega_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_node = os.path.join(here, f'data_perpendicular_moon/orbital_node_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_ecc = os.path.join(here, f'data_perpendicular_moon/ecc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_inc = os.path.join(here, f'data_perpendicular_moon/inc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+# f_sma = os.path.join(here, f'data_perpendicular_moon/sma_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+# f_longitude = os.path.join(here, f'data_perpendicular_moon/l_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+# f_omega = os.path.join(here, f'data_perpendicular_moon/omega_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+# f_node = os.path.join(here, f'data_perpendicular_moon/orbital_node_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+# f_ecc = os.path.join(here, f'data_perpendicular_moon/ecc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+# f_inc = os.path.join(here, f'data_perpendicular_moon/inc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
 
 # load
 # shape: (nsteps, nplanets)
@@ -69,14 +69,14 @@ axes[1].grid()
 axes[1].legend(fontsize=12)
 
 # plt.tight_layout()
-# out = os.path.join(here, f'plots_a={a_moon_short}/plots_m={m_moon_short}/moon_sma_ecc_a={a_moon_short}_m={m_moon_short}.png')
-# plt.savefig(out, dpi=300, bbox_inches='tight')
-# print(f"Saved {out}")
-# plt.close()
-
-# plot for perpendicular moon
-plt.tight_layout()
-out = os.path.join(here, f'plots_perpendicular/m={m_moon_short}/moon_sma_ecc_a={a_moon_short}_m={m_moon_short}.png')
+out = os.path.join(here, f'plots_a={a_moon_short}/plots_m={m_moon_short}/moon_sma_ecc_a={a_moon_short}_m={m_moon_short}.png')
 plt.savefig(out, dpi=300, bbox_inches='tight')
 print(f"Saved {out}")
 plt.close()
+
+# plot for perpendicular moon
+# plt.tight_layout()
+# out = os.path.join(here, f'plots_perpendicular/m={m_moon_short}/moon_sma_ecc_a={a_moon_short}_m={m_moon_short}.png')
+# plt.savefig(out, dpi=300, bbox_inches='tight')
+# print(f"Saved {out}")
+# plt.close()
