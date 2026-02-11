@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 import os
 
 m_moon_short = 0.001  # mass of the moon relative to planet f
-a_moon_short = 0.4  # semi-major axis of the moon relative to planet f
+a_moon_short = 0.5  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
 # load data
 ##########################################################################################
 
 here = os.path.dirname(__file__)
-
+"""
 # files without moon
 f_sma = os.path.join(here, 'data_sim/sma_planets.txt')
 f_longitude = os.path.join(here, 'data_sim/l_planets.txt')
@@ -19,7 +19,7 @@ f_node = os.path.join(here, 'data_sim/orbital_node_planets.txt')
 f_ecc = os.path.join(here, 'data_sim/ecc_planets.txt')
 f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
 
-"""
+
 # files with 1000 outputs
 f_sma = os.path.join(here, 'data_sim/sma_planets_1000outputs.txt')
 f_longitude = os.path.join(here, 'data_sim/l_planets_1000outputs.txt')
@@ -29,13 +29,21 @@ f_ecc = os.path.join(here, 'data_sim/ecc_planets_1000outputs.txt')
 f_inc = os.path.join(here, 'data_sim/inc_planets_1000outputs.txt')
 
 # filenames with moon
-f_sma = os.path.join(here, f'data_with_moon/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_longitude = os.path.join(here, f'data_with_moon/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_omega = os.path.join(here, f'data_with_moon/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_node = os.path.join(here, f'data_with_moon/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_ecc = os.path.join(here, f'data_with_moon/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_inc = os.path.join(here, f'data_with_moon/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_sma = os.path.join(here, f'data_with_moon_a={a_moon_short}/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_longitude = os.path.join(here, f'data_with_moon_a={a_moon_short}/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_omega = os.path.join(here, f'data_with_moon_a={a_moon_short}/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_node = os.path.join(here, f'data_with_moon_a={a_moon_short}/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_ecc = os.path.join(here, f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_inc = os.path.join(here, f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
 """
+
+# filenames with perpendicular moon
+f_sma = os.path.join(here, f'data_perpendicular_moon/sma_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_longitude = os.path.join(here, f'data_perpendicular_moon/l_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_omega = os.path.join(here, f'data_perpendicular_moon/omega_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_node = os.path.join(here, f'data_perpendicular_moon/orbital_node_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_ecc = os.path.join(here, f'data_perpendicular_moon/ecc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_inc = os.path.join(here, f'data_perpendicular_moon/inc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
 
 # load
 # shape: (nsteps, nplanets)
@@ -117,7 +125,7 @@ for ax in axes:
 
 for i in range(5):
   ax = axes[i]
-  ax.plot(time_years, angles[i], lw=0.5)
+  ax.plot(time_years, angles[i], lw=0.3)
   ax.set_title(f'$\phi_{i}$')
   ax.set_ylabel('resonant angle [deg]')
 
@@ -135,8 +143,9 @@ for j in range(n_angles, len(axes)):
 axes[6].set_xlabel('time [years]')
 
 plt.tight_layout()
-out = os.path.join(here, 'plots/all_resonances.png')
-#out = os.path.join(here, f'plots_m={m_moon_short}/all_resonances_m={m_moon_short}.png')
+#out = os.path.join(here, 'plots/all_resonances.png')
+#out = os.path.join(here, f'plots_a={a_moon_short}/plots_m={m_moon_short}/all_resonances_a={a_moon_short}_m={m_moon_short}.png')
+out = os.path.join(here, f'plots_perpendicular/m={m_moon_short}/all_resonances_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.png')
 plt.savefig(out, dpi=300, bbox_inches='tight')
 print(f"Saved {out}")
 plt.close()
