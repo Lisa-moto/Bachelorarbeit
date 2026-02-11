@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.472  # mass of the moon relative to planet f
-a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
+m_moon_short = 0.69  # mass of the moon relative to planet f
+a_moon_short = 0.4  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
 # load data
@@ -49,13 +49,14 @@ fig, axes = plt.subplots(2, 1, figsize=(12, 9), sharex=True)
 axes = axes.flatten()
 
 # Plot semi major axis
-axes[0].plot(time_years, sma[:, 6], color='blue', zorder=10, marker='.', linestyle='none', markersize=2, label='sma of moon')
+axes[0].plot(time_years, sma[:, 6], color='blue', zorder=10, label='sma of moon')
 axes[0].set_ylabel('Semi Major Axis [AU]', fontsize=14)
 axes[0].set_title('Semi Major Axis of the moon over time', fontsize=16)
 axes[0].grid()
 # y-Achse von 0 bis 0.2 AU
 axes[0].set_ylim(0, 0.2)
-# zum Vergleich plot der sma von Planet f und g
+# zum Vergleich plot der sma von Planet e, f und g
+axes[0].plot(time_years, sma[:, 3], color='purple', label='sma of Planet e')
 axes[0].plot(time_years, sma[:, 4], color='green', label='sma of Planet f')
 axes[0].plot(time_years, sma[:, 5], color='orange', zorder=1, label='sma of Planet g')
 axes[0].legend(fontsize=12)

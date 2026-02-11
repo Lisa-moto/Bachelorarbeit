@@ -20,7 +20,15 @@ f_ecc = os.path.join(here, 'data_sim/ecc_planets.txt')
 f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
 
 """
-# filenames
+# files with 1000 outputs
+f_sma = os.path.join(here, 'data_sim/sma_planets_1000outputs.txt')
+f_longitude = os.path.join(here, 'data_sim/l_planets_1000outputs.txt')
+f_omega = os.path.join(here, 'data_sim/omega_planets_1000outputs.txt')
+f_node = os.path.join(here, 'data_sim/orbital_node_planets_1000outputs.txt')
+f_ecc = os.path.join(here, 'data_sim/ecc_planets_1000outputs.txt')
+f_inc = os.path.join(here, 'data_sim/inc_planets_1000outputs.txt')
+
+# filenames with moon
 f_sma = os.path.join(here, f'data_with_moon/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
 f_longitude = os.path.join(here, f'data_with_moon/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
 f_omega = os.path.join(here, f'data_with_moon/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
@@ -109,7 +117,7 @@ for ax in axes:
 
 for i in range(5):
   ax = axes[i]
-  ax.plot(time_years, angles[i], lw=0.3)
+  ax.plot(time_years, angles[i], lw=0.5)
   ax.set_title(f'$\phi_{i}$')
   ax.set_ylabel('resonant angle [deg]')
 

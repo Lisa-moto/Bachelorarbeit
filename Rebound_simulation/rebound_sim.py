@@ -1,4 +1,3 @@
-import time
 import numpy as np
 import matplotlib.pyplot as plt 
 import rebound
@@ -14,7 +13,7 @@ Rstar = 0.651*R_sun
 Ndays=500*365.25
 orbit_time = 365.25
 day_in_second = 60*60*24
-Nsteps = 10000
+Nsteps = 100
 times = np.linspace(0, Ndays*day_in_second, Nsteps)
 timestep = (times[2]-times[1])
 Nt = 6
@@ -194,15 +193,15 @@ ecc,sma,inc,omega,longitude,orbital_node = simulation(sim)
 
 ### saving data ###
 # Save arrays directly: rows = timesteps, columns = planets
-np.savetxt('data_sim/ecc_planets.txt', ecc)
-np.savetxt('data_sim/sma_planets.txt', sma)
-np.savetxt('data_sim/inc_planets.txt', inc)
-np.savetxt('data_sim/orbital_node_planets.txt', orbital_node)
-np.savetxt('data_sim/omega_planets.txt', omega)
-np.savetxt('data_sim/l_planets.txt', longitude)
+np.savetxt('data_sim/ecc_planets_100outputs.txt', ecc)
+np.savetxt('data_sim/sma_planets_100outputs.txt', sma)
+np.savetxt('data_sim/inc_planets_100outputs.txt', inc)
+np.savetxt('data_sim/orbital_node_planets_100outputs.txt', orbital_node)
+np.savetxt('data_sim/omega_planets_100outputs.txt', omega)
+np.savetxt('data_sim/l_planets_100outputs.txt', longitude)
 
 
-rebound.OrbitPlot(sim)
-plt.gca().set_aspect('equal', 'box')
-plt.savefig('plots/orbit_plot_rebound.png', dpi=300, bbox_inches='tight')
-plt.close()
+# rebound.OrbitPlot(sim)
+# plt.gca().set_aspect('equal', 'box')
+# plt.savefig('plots/orbit_plot_rebound.png', dpi=300, bbox_inches='tight')
+# plt.close()

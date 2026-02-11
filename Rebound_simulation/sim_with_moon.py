@@ -117,12 +117,12 @@ lambd[5] = -1.737573
 """
 
 # moon parameters
-a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f; moon blieb mit 0.2Rh im Orbit stabil
+a_moon = 0.4*Rh[4]    # semi-major axis of the moon around planet f
 r_moon = 0.001*Rh[4]  # radius of the moon
-moon_mass = 0.472*masses[5]
+moon_mass = 0.69*masses[5]
 inc_moon = np.deg2rad(0) # inclination of the moon's orbit
 a_moon_short = a_moon/Rh[4]
-m_moon_short = moon_mass/masses[5]
+m_moon_short = round(moon_mass/masses[5], 3)
 # bei a=0.47Rh war der Mond bis Jahr 45 da bei m=0.001m_f, bei m=0.002 bis Jahr 69, bei m=0.003 bis Jahr 399,
 # bei m=0.004 bis Jahr 500 stabil im Orbit
 
@@ -235,20 +235,30 @@ def simulation(sim):
       ecc[i, idx_moon-1] = o.e
       sma[i, idx_moon-1] = o.a / AU
     except AttributeError:
-      idx_moon = idx_moon - 1 # when two planets collided
-      xyz_moon[i, 0] = ps[idx_moon].x
-      xyz_moon[i, 1] = ps[idx_moon].y
-      xyz_moon[i, 2] = ps[idx_moon].z
-      o = sim.particles[idx_moon].orbit(primary=sim.particles[idx_f])  # moon orbiting planet f
-      ecc[i, 6] = o.e
-      sma[i, 6] = o.a / AU
-      # set the wrong data to NaN
-      ecc[i, 5] = np.nan
-      sma[i, 5] = np.nan
+      # idx_moon = idx_moon - 1 # when two planets collided
+      # xyz_moon[i, 0] = ps[idx_moon].x
+      # xyz_moon[i, 1] = ps[idx_moon].y
+      # xyz_moon[i, 2] = ps[idx_moon].z
+      # o = sim.particles[idx_moon].orbit(primary=sim.particles[idx_f])  # moon orbiting planet f
+      # ecc[i, 6] = o.e
+      # sma[i, 6] = o.a / AU
+      # # set the wrong data to NaN
+      # ecc[i, 5] = np.nan
+      # sma[i, 5] = np.nan
 
-      # xyz_moon[i, :] = np.nan
-      # ecc[i, 6] = np.nan
-      # sma[i, 6] = np.nan
+      xyz_moon[i, :] = np.nan
+      ecc[i, 6] = np.nan
+      sma[i, 6] = np.nan
+
+      # if planet e gets a moon of planet f
+      # a = sim.particles[4].orbit(primary=sim.particles[idx_f])  # planet e orbiting planet f
+      # ecc[i, 3] = a.e
+      # sma[i, 3] = a.a / AU
+
+      # if planet g gets a moon of planet f
+      a = sim.particles[6].orbit(primary=sim.particles[idx_f])  # planet g orbiting planet f
+      ecc[i, 5] = a.e
+      sma[i, 5] = a.a / AU
 
     
     
