@@ -16,7 +16,8 @@ day_in_second = 60*60*24
 Nsteps = 10000
 times = np.linspace(0, Ndays*day_in_second, Nsteps)
 timestep = (times[2]-times[1])
-Nt = 6
+Nt = 7 # 6 planets + 1 moon
+
 
 # Data from the paper for each planet and of the star
 # Masses with error
@@ -39,11 +40,11 @@ mass_err6 = np.array([1-(1.62/3.94),1+(1.31/3.94)])
 # semi-major axes
 sma = np.zeros(6)
 sma[0] = 0.02607*AU
-sma[1] = 0.0370*AU
-sma[2] = 0.0592*AU
-sma[3] = 0.0783*AU
-sma[4] = 0.1039*AU
-sma[5] = 0.1275*AU
+sma[1] = 0.03700*AU
+sma[2] = 0.05920*AU
+sma[3] = 0.07830*AU
+sma[4] = 0.10390*AU
+sma[5] = 0.12750*AU
 
 # physical Radius
 R = np.zeros(6)
@@ -66,8 +67,8 @@ Rh[5] = (masses[6]/(3*masses[0]))**(1/3)*sma[5]
 # Periods
 P = np.zeros(6)
 P[0] = 1.914558*day_in_second
-P[1] = 3.23845*day_in_second
-P[2] = 6.5577*day_in_second
+P[1] = 3.238450*day_in_second
+P[2] = 6.557700*day_in_second
 P[3] = 9.961881*day_in_second
 P[4] = 15.231915*day_in_second
 P[5] = 20.70950*day_in_second
@@ -90,6 +91,13 @@ incl[3] = np.deg2rad(0.31)
 incl[4] = np.deg2rad(0.323)
 incl[5] = np.deg2rad(0.523)
 
+# moon parameters
+a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f
+r_moon = 0.001*Rh[4]  # radius of the moon
+moon_mass = 0.01*masses[5]
+inc_moon = np.deg2rad(0) # inclination of the moon's orbit
+a_moon_short = a_moon/Rh[4]
+m_moon_short = round(moon_mass/masses[5], 3)
 
 ### day zero date in JBD ###
 date_ci = 2458354
@@ -136,8 +144,8 @@ def setupSimulation():
   sim.collision_resolve = 'merge'
   sim.G = 6.6743e-11
 
-  sim.integrator = "whfast" # eigentlich nicht fuer close encounters und wenn Kollisionen auftreten
-  sim.dt = 0.001 * P[4] # fuer TTV-Genauigkeit kleineres timestep als fuer Stabilitaet
+  sim.integrator = "whfast"
+  sim.dt = 0.001 * P[4] # fuer TTV-Genauigkeit kleinerer timestep als fuer Stabilitaet
   
   # placing the planets and the star
 
@@ -157,6 +165,11 @@ def setupSimulation():
   sim.add(TOI178_f)
   sim.add(TOI178_g)
   
+  # Mond zu Planet f hinzufügen
+  TOI178_f_moon = rebound.Particle(simulation=sim,primary=TOI178_f,m=moon_mass, r=r_moon, a=a_moon, inc=inc_moon)
+
+  sim.add(TOI178_f_moon)
+  
 
   sim.move_to_com()
   
@@ -166,7 +179,6 @@ def setupSimulation():
 sim = setupSimulation()
 tmax = Ndays * day_in_second
 transit_times = compute_ttv(sim, 5, tmax)
-# ecc,sma,inc,omega,longitude,orbital_node = simulation(sim)
 
 
 # linear least square fit to remove the linear trend from the transit times
@@ -179,8 +191,8 @@ ttv = (transit_times-m*np.array(range(N))-c)*(24.*365./2./np.pi) # in hours
 
 # Plot TTVs
 plt.figure(figsize=(8,5))
-plt.plot(n, ttv*60, lw=0.5)
+plt.plot(n, ttv, lw=1)
 plt.xlabel("Transit number")
-plt.ylabel("TTV [minutes]")
-plt.title("TTV of TOI-178 f")
-plt.savefig("plots/TTV_TOI178_f.png", dpi=300)
+plt.ylabel("TTV [hours]")
+plt.title("TTV of TOI-178 f with moon")
+plt.savefig(f"plots/TTV_f_with_moon_m={m_moon_short}.png", dpi=300)
