@@ -10,14 +10,13 @@ R_sun = 696340000
 AU = 1.5e11
 Rstar = 0.651*R_sun
 
-Ndays=500*365.25
+Ndays=200*365.25
 orbit_time = 365.25
 day_in_second = 60*60*24
 Nsteps = 10000
 times = np.linspace(0, Ndays*day_in_second, Nsteps)
 timestep = (times[2]-times[1])
 Nt = 6
-
 
 # Data from the paper for each planet and of the star
 # Masses with error
@@ -91,25 +90,6 @@ incl[3] = np.deg2rad(0.31)
 incl[4] = np.deg2rad(0.323)
 incl[5] = np.deg2rad(0.523)
 
-"""
-# inc (deg)
-incl = np.zeros(6)
-incl[0] = np.deg2rad(88.800)
-incl[1] = np.deg2rad(88.400)
-incl[2] = np.deg2rad(88.580)
-incl[3] = np.deg2rad(88.710)
-incl[4] = np.deg2rad(88.723)
-incl[5] = np.deg2rad(88.823)
-
-# lambda (deg)
-lambd = np.zeros(6)
-lambd[0] = 1.772610
-lambd[1] = 0.632669
-lambd[2] = -1.268245
-lambd[3] = -0.934120
-lambd[4] = 0.207905
-lambd[5] = -1.737573
-"""
 
 ### day zero date in JBD ###
 date_ci = 2458354
@@ -119,6 +99,35 @@ lambd = np.zeros(6)
 for i in range(6): 
   lambd[i] = -(2*np.pi/P[i])*((T0[i]-date_ci)*day_in_second)-np.pi/2
 
+# function for calculating the TTV
+def compute_ttv(sim, planet_index, tmax):
+    ps = sim.particles
+    star = ps[0]
+    planet = ps[planet_index]
+    
+    transit_times = []
+    
+    x_old = planet.x - star.x
+    t_old = sim.t
+    
+    while sim.t < tmax:
+        sim.integrate(sim.t + sim.dt)
+        
+        x_new = planet.x - star.x
+        
+        # Vorzeichenwechsel -> Transit
+        if x_old < 0 and x_new >= 0:
+            
+            # lineare Interpolation für genaueren Zeitpunkt
+            frac = x_old / (x_old - x_new)
+            t_transit = t_old + frac * sim.dt
+            transit_times.append(t_transit)
+        
+        x_old = x_new
+        t_old = sim.t
+    
+    return np.array(transit_times)
+
 
 def setupSimulation():
 # Setting up the Simulation
@@ -126,6 +135,9 @@ def setupSimulation():
   sim.collision = 'direct'
   sim.collision_resolve = 'merge'
   sim.G = 6.6743e-11
+
+  sim.integrator = "whfast"
+  sim.dt = 0.02 * P[4] # fuer TTV-Genauigkeit kleineres timestep als fuer Stabilitaet
   
   # placing the planets and the star
 
@@ -150,7 +162,7 @@ def setupSimulation():
   
   return sim
 
-
+"""
 def simulation(sim):
 ### Definig simulation calculation and data entries ###
   N = sim.N
@@ -186,22 +198,28 @@ def simulation(sim):
 
 
   return ecc,sma,inc,omega,longitude,orbital_node
-
+"""
 
 sim = setupSimulation()
-ecc,sma,inc,omega,longitude,orbital_node = simulation(sim)
-
-### saving data ###
-# Save arrays directly: rows = timesteps, columns = planets
-np.savetxt('data_sim/ecc_planets.txt', ecc)
-np.savetxt('data_sim/sma_planets.txt', sma)
-np.savetxt('data_sim/inc_planets.txt', inc)
-np.savetxt('data_sim/orbital_node_planets.txt', orbital_node)
-np.savetxt('data_sim/omega_planets.txt', omega)
-np.savetxt('data_sim/l_planets.txt', longitude)
+tmax = Ndays * day_in_second
+transit_times = compute_ttv(sim, 5, tmax)
+# ecc,sma,inc,omega,longitude,orbital_node = simulation(sim)
 
 
-rebound.OrbitPlot(sim)
-plt.gca().set_aspect('equal', 'box')
-plt.savefig('plots/orbit_plot_rebound.png', dpi=300, bbox_inches='tight')
-plt.close()
+# Transitnummern
+n = np.arange(len(transit_times))
+
+# lineare Regression
+coef = np.polyfit(n, transit_times, 1)
+P_fit = coef[0]
+t0_fit = coef[1]
+
+linear_ephem = t0_fit + n * P_fit
+ttv = transit_times - linear_ephem
+
+# Plot TTVsplt.figure()
+plt.plot(n, ttv/60, lw=0.5)
+plt.xlabel("Transit number")
+plt.ylabel("TTV [minutes]")
+plt.title("TTV of TOI-178 f")
+plt.savefig("plots/TTV_TOI178_f.png", dpi=300)
