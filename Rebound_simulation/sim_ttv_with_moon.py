@@ -10,7 +10,7 @@ R_sun = 696340000
 AU = 1.5e11
 Rstar = 0.651*R_sun
 
-Ndays=200*365.25
+Ndays=10*365.25
 orbit_time = 365.25
 day_in_second = 60*60*24
 Nsteps = 10000
@@ -108,33 +108,30 @@ for i in range(6):
   lambd[i] = -(2*np.pi/P[i])*((T0[i]-date_ci)*day_in_second)-np.pi/2
 
 # function for calculating the TTV
-def compute_ttv(sim, planet_index, tmax):
+def compute_ttv(sim, n_transits, planet_index, check_step, post_step):
+    N = n_transits
+    transit_times = np.zeros(N)
     ps = sim.particles
     star = ps[0]
     planet = ps[planet_index]
-    
-    transit_times = []
-    
-    x_old = planet.x - star.x
-    t_old = sim.t
-    
-    while sim.t < tmax:
-        sim.integrate(sim.t + sim.dt)
-        
-        x_new = planet.x - star.x
-        
-        # Vorzeichenwechsel -> Transit
-        if x_old < 0 and x_new >= 0:
-            
-            # lineare Interpolation für genaueren Zeitpunkt
-            frac = x_old / (x_old - x_new)
-            t_transit = t_old + frac * sim.dt
-            transit_times.append(t_transit)
-        
-        x_old = x_new
+    i = 0
+    while i<N and sim.t < tmax:
+        y_old = planet.y - star.y
         t_old = sim.t
-    
-    return np.array(transit_times)
+        sim.integrate(sim.t+check_step) # integrate check step to check for transit
+        t_new = sim.t
+        if y_old*(planet.y-star.y)<0. and planet.x-star.x>0.: # sign changed (y_old*y<0), planet in front of star (x>0)
+            while t_new - t_old > 1e-7: # bisect until prec of 1e-5 reached
+                if y_old*(planet.y-star.y)<0.:
+                    t_new = sim.t
+                else:
+                    t_old = sim.t
+                sim.integrate((t_new+t_old)/2.)
+            transit_times[i] = sim.t
+            i += 1
+            sim.integrate(sim.t+post_step)       # integrate post_step to be past the transit
+            print(f"Found transit {i} at time %5.2f days" % (transit_times[i-1]/day_in_second))
+    return transit_times
 
 
 def setupSimulation():
@@ -144,8 +141,8 @@ def setupSimulation():
   sim.collision_resolve = 'merge'
   sim.G = 6.6743e-11
 
-  sim.integrator = "whfast"
-  sim.dt = 0.001 * P[4] # fuer TTV-Genauigkeit kleinerer timestep als fuer Stabilitaet
+  #sim.integrator = "whfast"
+  #sim.dt = 0.001 * P[0] # fuer TTV-Genauigkeit kleinerer timestep als fuer Stabilitaet
   
   # placing the planets and the star
 
@@ -178,7 +175,10 @@ def setupSimulation():
 
 sim = setupSimulation()
 tmax = Ndays * day_in_second
-transit_times = compute_ttv(sim, 5, tmax)
+n_transits = int(tmax/P[4])
+check_step = 0.002*P[4] # check for a transit in that interval
+post_step = 0.005*P[4] # after finding a transit, integrate post_step to be past the transit
+transit_times = compute_ttv(sim, n_transits, 5, check_step, post_step)
 
 
 # linear least square fit to remove the linear trend from the transit times
@@ -187,12 +187,17 @@ A = np.vstack([np.ones(N), range(N)]).T
 c, m = np.linalg.lstsq(A, transit_times, rcond=-1)[0]
 
 n = np.arange(len(transit_times))
-ttv = (transit_times-m*np.array(range(N))-c)*(24.*365./2./np.pi) # in hours
+ttv = (transit_times-m*np.array(range(N))-c) # in seconds
+
+# save transit times to file
+np.savetxt(f"data_ttv/transit_times_moon_m={m_moon_short}.txt", ttv)
+
+# fuer 10 Jahre 239 transits
 
 # Plot TTVs
 plt.figure(figsize=(8,5))
-plt.plot(n, ttv, lw=1)
+plt.plot(n, ttv/60, lw=1)
 plt.xlabel("Transit number")
-plt.ylabel("TTV [hours]")
+plt.ylabel("TTV [minutes]")
 plt.title("TTV of TOI-178 f with moon")
-plt.savefig(f"plots/TTV_f_with_moon_m={m_moon_short}.png", dpi=300)
+plt.savefig(f"TTV_plots/TTV_f_with_moon_m={m_moon_short}.png", dpi=300)
