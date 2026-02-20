@@ -121,7 +121,7 @@ def compute_ttv(sim, n_transits, planet_index, check_step, post_step):
         sim.integrate(sim.t+check_step) # integrate check step to check for transit
         t_new = sim.t
         if y_old*(planet.y-star.y)<0. and planet.x-star.x>0.: # sign changed (y_old*y<0), planet in front of star (x>0)
-            while t_new - t_old > 1e-7: # bisect until prec of 1e-5 reached
+            while t_new - t_old > 1e-5: # bisect until prec of 1e-5 reached
                 if y_old*(planet.y-star.y)<0.:
                     t_new = sim.t
                 else:
@@ -196,7 +196,7 @@ np.savetxt(f"data_ttv/transit_times_moon_m={m_moon_short}.txt", ttv)
 
 # Plot TTVs
 plt.figure(figsize=(8,5))
-plt.plot(n, ttv/60, lw=1)
+plt.plot(n, ttv/60, lw=0.5, marker='.')
 plt.xlabel("Transit number")
 plt.ylabel("TTV [minutes]")
 plt.title("TTV of TOI-178 f with moon")
