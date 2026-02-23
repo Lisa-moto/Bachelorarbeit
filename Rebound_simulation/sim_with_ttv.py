@@ -10,7 +10,7 @@ R_sun = 696340000
 AU = 1.5e11
 Rstar = 0.651*R_sun
 
-Ndays=20*365.25
+Ndays=10*365.25
 orbit_time = 365.25
 day_in_second = 60*60*24
 Nsteps = 10000
@@ -113,7 +113,7 @@ def compute_ttv(sim, n_transits, planet_index, check_step, post_step):
         sim.integrate(sim.t+check_step) # integrate check step to check for transit
         t_new = sim.t
         if y_old*(planet.y-star.y)<0. and planet.x-star.x>0.: # sign changed (y_old*y<0), planet in front of star (x>0)
-            while t_new - t_old > 1e-5: # bisect until prec of 1e-5 reached
+            while t_new - t_old > 1e-5: # bisect until precision is reached. Changed from 1e-7 to 1e-5
                 if y_old*(planet.y-star.y)<0.:
                     t_new = sim.t
                 else:
@@ -162,8 +162,9 @@ def setupSimulation():
 sim = setupSimulation()
 tmax = Ndays * day_in_second
 n_transits = int(tmax/P[4])
-check_step = 0.002*P[4] # check for a transit in that interval
-post_step = 0.005*P[4] # after finding a transit, integrate post_step to be past the transit to avoid finding the same transit again
+transit_duration = (R[4]+Rstar)/sma[4]*P[4]/np.pi # in seconds, duration of the transit
+check_step = 0.5*transit_duration # check for a transit in that interval
+post_step = 0.2*transit_duration # after finding a transit, integrate post_step to be past the transit to avoid finding the same transit again
 transit_times = compute_ttv(sim, n_transits, 5, check_step, post_step)
 
 

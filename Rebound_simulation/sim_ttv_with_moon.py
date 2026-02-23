@@ -94,7 +94,7 @@ incl[5] = np.deg2rad(0.523)
 # moon parameters
 a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f
 r_moon = 0.001*Rh[4]  # radius of the moon
-moon_mass = 0.01*masses[5]
+moon_mass = 0.001*masses[5]
 inc_moon = np.deg2rad(0) # inclination of the moon's orbit
 a_moon_short = a_moon/Rh[4]
 m_moon_short = round(moon_mass/masses[5], 3)
@@ -176,8 +176,9 @@ def setupSimulation():
 sim = setupSimulation()
 tmax = Ndays * day_in_second
 n_transits = int(tmax/P[4])
-check_step = 0.002*P[4] # check for a transit in that interval
-post_step = 0.005*P[4] # after finding a transit, integrate post_step to be past the transit
+transit_duration = (R[4]+Rstar)/sma[4]*P[4]/np.pi # in seconds, duration of the transit
+check_step = 0.5*transit_duration # check for a transit in that interval
+post_step = 0.2*transit_duration # after finding a transit, integrate post_step to be past the transit to avoid finding the same transit again
 transit_times = compute_ttv(sim, n_transits, 5, check_step, post_step)
 
 
