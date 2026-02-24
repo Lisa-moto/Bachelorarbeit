@@ -210,9 +210,9 @@ def simulation(sim):
     idx_f = 5
     idx_moon = 7 # moon is the last particle in the simulation
 
-    # xyz_f[i, 0] = ps[idx_f].x
-    # xyz_f[i, 1] = ps[idx_f].y
-    # xyz_f[i, 2] = ps[idx_f].z
+    xyz_f[i, 0] = ps[idx_f].x
+    xyz_f[i, 1] = ps[idx_f].y
+    xyz_f[i, 2] = ps[idx_f].z
 
     # xyz_moon[i, 0] = ps[idx_moon].x
     # xyz_moon[i, 1] = ps[idx_moon].y
