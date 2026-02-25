@@ -94,10 +94,10 @@ incl[5] = np.deg2rad(0.523)
 # moon parameters
 a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f
 r_moon = 0.001*Rh[4]  # radius of the moon
-moon_mass = 0.001*masses[5]
+moon_mass = 1e-5*masses[5]
 inc_moon = np.deg2rad(0) # inclination of the moon's orbit
 a_moon_short = a_moon/Rh[4]
-m_moon_short = round(moon_mass/masses[5], 3)
+m_moon_short = moon_mass/masses[5]
 
 ### day zero date in JBD ###
 date_ci = 2458354
@@ -121,7 +121,7 @@ def compute_ttv(sim, n_transits, planet_index, check_step, post_step):
         sim.integrate(sim.t+check_step) # integrate check step to check for transit
         t_new = sim.t
         if y_old*(planet.y-star.y)<0. and planet.x-star.x>0.: # sign changed (y_old*y<0), planet in front of star (x>0)
-            while t_new - t_old > 1e-5: # bisect until prec of 1e-5 reached
+            while t_new - t_old > 1e-1: # bisect until prec of 1e-5 reached
                 if y_old*(planet.y-star.y)<0.:
                     t_new = sim.t
                 else:

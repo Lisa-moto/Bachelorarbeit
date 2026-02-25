@@ -113,7 +113,7 @@ def compute_ttv(sim, n_transits, planet_index, check_step, post_step):
         sim.integrate(sim.t+check_step) # integrate check step to check for transit
         t_new = sim.t
         if y_old*(planet.y-star.y)<0. and planet.x-star.x>0.: # sign changed (y_old*y<0), planet in front of star (x>0)
-            while t_new - t_old > 1e-5: # bisect until precision is reached. Changed from 1e-7 to 1e-5
+            while t_new - t_old > 1e-1: # bisect until precision is reached
                 if y_old*(planet.y-star.y)<0.:
                     t_new = sim.t
                 else:

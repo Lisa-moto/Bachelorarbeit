@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.001  # mass of the moon relative to planet f
+m_moon_short = 0.002  # mass of the moon relative to planet f
 
 # load transit times from file
 here = os.path.dirname(__file__)
 
 f_transit_times = os.path.join(here, "data_ttv/transit_times.txt")
-f_transit_times_moon = os.path.join(here, f"data_ttv/transit_times_moon_m={m_moon_short}.txt")
+f_transit_times_moon = os.path.join(here, f"data_ttv/transit_times_moon_m={m_moon_short}_a=0.25.txt")
 
 transit_times = np.loadtxt(f_transit_times)
 transit_times_moon = np.loadtxt(f_transit_times_moon)
@@ -32,4 +32,4 @@ plt.title("TTV comparison with and without moon")
 plt.legend()
 
 # save plot
-plt.savefig(f"TTV_plots/ttv_comparison_m={m_moon_short}.png", dpi=300)
+#plt.savefig(f"TTV_plots/ttv_comparison_m={m_moon_short}.png", dpi=300)
