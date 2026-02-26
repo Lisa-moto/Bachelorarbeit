@@ -18,15 +18,6 @@ f_omega = os.path.join(here, 'data_sim/omega_planets.txt')
 f_node = os.path.join(here, 'data_sim/orbital_node_planets.txt')
 f_ecc = os.path.join(here, 'data_sim/ecc_planets.txt')
 f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
-
-
-# files with 1000 outputs
-f_sma = os.path.join(here, 'data_sim/sma_planets_1000outputs.txt')
-f_longitude = os.path.join(here, 'data_sim/l_planets_1000outputs.txt')
-f_omega = os.path.join(here, 'data_sim/omega_planets_1000outputs.txt')
-f_node = os.path.join(here, 'data_sim/orbital_node_planets_1000outputs.txt')
-f_ecc = os.path.join(here, 'data_sim/ecc_planets_1000outputs.txt')
-f_inc = os.path.join(here, 'data_sim/inc_planets_1000outputs.txt')
 """
 
 # filenames with moon
@@ -37,14 +28,23 @@ f_node = os.path.join(here, f'data_with_moon_a={a_moon_short}/orbital_node_with_
 f_ecc = os.path.join(here, f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
 f_inc = os.path.join(here, f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
 
+"""
+# filenames with perpendicular moon
+f_sma = os.path.join(here, f'data_perpendicular_moon/sma_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_longitude = os.path.join(here, f'data_perpendicular_moon/l_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_omega = os.path.join(here, f'data_perpendicular_moon/omega_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_node = os.path.join(here, f'data_perpendicular_moon/orbital_node_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_ecc = os.path.join(here, f'data_perpendicular_moon/ecc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_inc = os.path.join(here, f'data_perpendicular_moon/inc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
 
-# # filenames with perpendicular moon
-# f_sma = os.path.join(here, f'data_perpendicular_moon/sma_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_longitude = os.path.join(here, f'data_perpendicular_moon/l_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_omega = os.path.join(here, f'data_perpendicular_moon/omega_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_node = os.path.join(here, f'data_perpendicular_moon/orbital_node_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_ecc = os.path.join(here, f'data_perpendicular_moon/ecc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_inc = os.path.join(here, f'data_perpendicular_moon/inc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt')
+# files with 1000 outputs
+f_sma = os.path.join(here, 'data_sim/sma_planets_1000outputs.txt')
+f_longitude = os.path.join(here, 'data_sim/l_planets_1000outputs.txt')
+f_omega = os.path.join(here, 'data_sim/omega_planets_1000outputs.txt')
+f_node = os.path.join(here, 'data_sim/orbital_node_planets_1000outputs.txt')
+f_ecc = os.path.join(here, 'data_sim/ecc_planets_1000outputs.txt')
+f_inc = os.path.join(here, 'data_sim/inc_planets_1000outputs.txt')
+"""
 
 # load
 # shape: (nsteps, nplanets)
@@ -150,3 +150,44 @@ out = os.path.join(here, f'plots_a={a_moon_short}/plots_m={m_moon_short}/all_res
 plt.savefig(out, dpi=300, bbox_inches='tight')
 print(f"Saved {out}")
 plt.close()
+
+def make_plot(phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3):
+  n_steps = len(phi0)
+  time_years = np.linspace(0, 500, n_steps)
+  angles = np.array([phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3])
+
+  # number of angles and timesteps
+  n_angles = angles.shape[0]
+
+  # Create a 2x4 grid and plot first n_to_plot angles
+  fig, axes = plt.subplots(4, 2, figsize=(12, 9), sharex=True)
+  axes = axes.flatten()
+
+  for ax in axes:
+    ax.set_ylim(0, 360)
+    ax.grid(alpha=0.25)
+
+  for i in range(5):
+    ax = axes[i]
+    ax.plot(time_years, angles[i], lw=0.3)
+    ax.set_title(f'$\phi_{i}$')
+    ax.set_ylabel('resonant angle [deg]')
+
+  for i in range(3):
+    ax = axes[i+5]
+    ax.plot(time_years, angles[i+5], lw=0.8)
+    ax.set_title(f'$\psi_{i+1}$')
+    ax.set_ylabel('resonant angle [deg]')
+
+  # turn off any unused axes
+  for j in range(n_angles, len(axes)):
+    axes[j].axis('off')
+
+  # label shared x-axis on bottom-left subplot (index 6 for our layout)
+  axes[6].set_xlabel('time [years]')
+
+  plt.tight_layout()
+  out = os.path.join(here, f'plots_a={a_moon_short}/plots_m={m_moon_short}/all_resonances_a={a_moon_short}_m={m_moon_short}.png')
+  plt.savefig(out, dpi=300, bbox_inches='tight')
+  print(f"Saved {out}")
+  plt.close()
