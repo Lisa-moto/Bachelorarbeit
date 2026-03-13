@@ -1,13 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-m_moon_short = 0.004  # mass of the moon relative to planet f
+m_moon_short = 0.001  # mass of the moon relative to planet f
+a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 
 # -----------------------------
 # load data
 # -----------------------------
-xyz_f = np.loadtxt(f"data_with_moon/xyz_f_with_moon_m={m_moon_short}.txt")
-xyz_moon = np.loadtxt(f"data_with_moon/xyz_moon_m={m_moon_short}.txt")
+xyz_f = np.loadtxt(f"data_with_moon_a={a_moon_short}/xyz_f_with_moon_a={a_moon_short}_m={m_moon_short}.txt")
+xyz_moon = np.loadtxt(f"data_with_moon_a={a_moon_short}/xyz_moon_a={a_moon_short}_m={m_moon_short}.txt")
 
 # -----------------------------
 # compute moon orbit in planet f frame
@@ -38,9 +39,9 @@ fig, axes = plt.subplots(1, 3, figsize=(15,6))
 # xy plot
 axes[0].scatter(x, y, s=4, alpha=0.7)
 axes[0].scatter(0, 0, s=60, color="black")
-axes[0].set_xlabel("x [m]")
-axes[0].set_ylabel("y [m]")
-axes[0].set_title("x–y projection")
+axes[0].set_xlabel("x [m]", size=15)
+axes[0].set_ylabel("y [m]", size=15)
+axes[0].set_title("x–y projection", size=17)
 axes[0].set_xlim(-lim, lim)
 axes[0].set_ylim(-lim, lim)
 axes[0].set_aspect("equal")
@@ -49,9 +50,9 @@ axes[0].grid(True)
 # xz plot
 axes[1].scatter(x, z, s=4, alpha=0.7)
 axes[1].scatter(0, 0, s=60, color="black")
-axes[1].set_xlabel("x [m]")
-axes[1].set_ylabel("z [m]")
-axes[1].set_title("x–z projection")
+axes[1].set_xlabel("x [m]", size=15)
+axes[1].set_ylabel("z [m]", size=15)
+axes[1].set_title("x–z projection", size=17)
 axes[1].set_xlim(-lim, lim)
 axes[1].set_ylim(-lim, lim)
 axes[1].set_aspect("equal")
@@ -60,15 +61,15 @@ axes[1].grid(True)
 # yz plot
 axes[2].scatter(y, z, s=4, alpha=0.7)
 axes[2].scatter(0, 0, s=60, color="black")
-axes[2].set_xlabel("y [m]")
-axes[2].set_ylabel("z [m]")
-axes[2].set_title("y–z projection")
+axes[2].set_xlabel("y [m]", size=15)
+axes[2].set_ylabel("z [m]", size=15)
+axes[2].set_title("y–z projection", size=17)
 axes[2].set_xlim(-lim, lim)
 axes[2].set_ylim(-lim, lim)
 axes[2].set_aspect("equal")
 axes[2].grid(True)
 
-plt.suptitle(f"Moon orbit around TOI-178 f (last {N_years} simulation years)", fontsize=14)
+plt.suptitle(f"Moon orbit around TOI-178 f (last {N_years} simulation years)", fontsize=18)
 plt.tight_layout()
-plt.savefig(f"plots_m={m_moon_short}/moon_orbit_3projections_last_{N_years}_years_m={m_moon_short}.png", dpi=300, bbox_inches="tight")
+plt.savefig(f"plots_a={a_moon_short}/plots_m={m_moon_short}/moon_orbit_3projections_last_{N_years}_years_m={m_moon_short}.png", dpi=300, bbox_inches="tight")
 plt.close()

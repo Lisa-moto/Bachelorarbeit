@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.69  # mass of the moon relative to planet f
-a_moon_short = 0.4  # semi-major axis of the moon relative to planet f
+m_moon_short = 0.001  # mass of the moon relative to planet f
+a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
 # load data

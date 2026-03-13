@@ -3,7 +3,7 @@ import resonance_plot_auto
 
 start_m = 0.001
 end_m = 0.013
-start_a = 0.3
+start_a = 0.2
 end_a = 0.4
 
 i = start_a

@@ -116,7 +116,7 @@ lambd[5] = -1.737573
 a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f
 r_moon = 0.001*Rh[4]  # radius of the moon
 moon_mass = 0.001*masses[5]
-inc_moon = np.deg2rad(0) # inclination of the moon's orbit
+inc_moon = np.deg2rad(90) # inclination of the moon's orbit
 a_moon_short = a_moon/Rh[4]
 m_moon_short = round(moon_mass/masses[5], 3)
 
@@ -135,6 +135,8 @@ def setupSimulation(a=a_moon_short, m=m_moon_short):
   sim.collision = 'direct'
   sim.collision_resolve = 'merge'
   sim.G = 6.6743e-11
+  sim.integrator = "leapfrog"
+  sim.dt = 1e-3
 
   a_moon = a*Rh[4]
   moon_mass = m*masses[5]
@@ -265,21 +267,21 @@ def simulation(sim):
 
 sim = setupSimulation()
 
-# Orbit plot at t=0
-ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
-ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
-plt.gca().set_aspect('equal', 'box')
-plt.savefig(f"plots_a={a_moon_short}/plots_m={m_moon_short}/orbit_plot_moon_t0_a={a_moon_short}_m={m_moon_short}.png", dpi=300, bbox_inches='tight')
-plt.close()
+# # Orbit plot at t=0
+# ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
+# ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
+# plt.gca().set_aspect('equal', 'box')
+# plt.savefig(f"plots_a={a_moon_short}/plots_m={m_moon_short}/orbit_plot_moon_t0_a={a_moon_short}_m={m_moon_short}.png", dpi=300, bbox_inches='tight')
+# plt.close()
 
 ###############################################
 # for perpendicular moon
 ###############################################
-# ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
-# ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
-# plt.gca().set_aspect('equal', 'box')
-# plt.savefig(f"plots_perpendicular/m={m_moon_short}/orbit_plot_moon_t0_a={a_moon_short}_m={m_moon_short}.png", dpi=300, bbox_inches='tight')
-# plt.close()
+ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
+ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
+plt.gca().set_aspect('equal', 'box')
+plt.savefig(f"plots_perpendicular/m={m_moon_short}/orbit_plot_moon_t0_a={a_moon_short}_m={m_moon_short}.png", dpi=300, bbox_inches='tight')
+plt.close()
 
 
 ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = simulation(sim)
@@ -288,17 +290,17 @@ print("Anzahl der particles nach Simulation: ", sim.N)
 
 
 ### saving data ###
-sim.save_to_file(f'simulation_save/sim_with_moon_a={a_moon_short}_m={m_moon_short}.bin')
-# Save arrays directly: rows = timesteps, columns = planets
-# save date in new directory data_with_moon
-np.savetxt(f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt', ecc)
-np.savetxt(f'data_with_moon_a={a_moon_short}/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt', sma)
-np.savetxt(f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt', inc)
-np.savetxt(f'data_with_moon_a={a_moon_short}/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt', orbital_node)
-np.savetxt(f'data_with_moon_a={a_moon_short}/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt', omega)
-np.savetxt(f'data_with_moon_a={a_moon_short}/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt', longitude)
-np.savetxt(f'data_with_moon_a={a_moon_short}/xyz_f_with_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_f)
-np.savetxt(f'data_with_moon_a={a_moon_short}/xyz_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_moon)
+# sim.save_to_file(f'simulation_save/sim_with_moon_a={a_moon_short}_m={m_moon_short}.bin')
+# # Save arrays directly: rows = timesteps, columns = planets
+# # save date in new directory data_with_moon
+# np.savetxt(f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt', ecc)
+# np.savetxt(f'data_with_moon_a={a_moon_short}/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt', sma)
+# np.savetxt(f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt', inc)
+# np.savetxt(f'data_with_moon_a={a_moon_short}/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt', orbital_node)
+# np.savetxt(f'data_with_moon_a={a_moon_short}/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt', omega)
+# np.savetxt(f'data_with_moon_a={a_moon_short}/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt', longitude)
+# np.savetxt(f'data_with_moon_a={a_moon_short}/xyz_f_with_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_f)
+# np.savetxt(f'data_with_moon_a={a_moon_short}/xyz_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_moon)
 
 def safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon, a, m):
   output_dir = f'data_aufgabe1_auto/data_moon_a={a}'
@@ -314,30 +316,30 @@ def safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon, a,
   np.savetxt(f'{output_dir}/xyz_moon_a={a}_m={m}.txt', xyz_moon)
 
 # Orbit plot at t=500 years
-ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
-ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
-plt.gca().set_aspect('equal', 'box')
-plt.savefig(f'plots_a={a_moon_short}/plots_m={m_moon_short}/orbit_plot_moon_500y_a={a_moon_short}_m={m_moon_short}.png', dpi=300, bbox_inches='tight')
-plt.close()
+# ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
+# ob2 = rebound.OrbitPlot(sim, particles=[7], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
+# plt.gca().set_aspect('equal', 'box')
+# plt.savefig(f'plots_a={a_moon_short}/plots_m={m_moon_short}/orbit_plot_moon_500y_a={a_moon_short}_m={m_moon_short}.png', dpi=300, bbox_inches='tight')
+# plt.close()
 
 ###############################################
 # for perpendicular moon
 ###############################################
-# sim.save_to_file(f'simulation_save/perpendicular_moon_a={a_moon_short}_m={m_moon_short}.bin')
-# # Save arrays directly: rows = timesteps, columns = planets
-# # save date in new directory data_with_moon
-# np.savetxt(f'data_perpendicular_moon/ecc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', ecc)
-# np.savetxt(f'data_perpendicular_moon/sma_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', sma)
-# np.savetxt(f'data_perpendicular_moon/inc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', inc)
-# np.savetxt(f'data_perpendicular_moon/orbital_node_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', orbital_node)
-# np.savetxt(f'data_perpendicular_moon/omega_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', omega)
-# np.savetxt(f'data_perpendicular_moon/l_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', longitude)
-# np.savetxt(f'data_perpendicular_moon/xyz_f_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_f)
-# np.savetxt(f'data_perpendicular_moon/xyz_moon_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_moon)
+sim.save_to_file(f'simulation_save/perpendicular_moon_a={a_moon_short}_m={m_moon_short}.bin')
+# Save arrays directly: rows = timesteps, columns = planets
+# save date in new directory data_with_moon
+np.savetxt(f'data_perpendicular_moon/ecc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', ecc)
+np.savetxt(f'data_perpendicular_moon/sma_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', sma)
+np.savetxt(f'data_perpendicular_moon/inc_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', inc)
+np.savetxt(f'data_perpendicular_moon/orbital_node_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', orbital_node)
+np.savetxt(f'data_perpendicular_moon/omega_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', omega)
+np.savetxt(f'data_perpendicular_moon/l_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', longitude)
+np.savetxt(f'data_perpendicular_moon/xyz_f_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_f)
+np.savetxt(f'data_perpendicular_moon/xyz_moon_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.txt', xyz_moon)
 
-# # Orbit plot at t=500 years
-# ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
-# #ob2 = rebound.OrbitPlot(sim, particles=[6], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
-# plt.gca().set_aspect('equal', 'box')
-# plt.savefig(f'plots_perpendicular/m={m_moon_short}/orbit_plot_moon_500y_a={a_moon_short}_m={m_moon_short}.png', dpi=300, bbox_inches='tight')
-# plt.close()
+# Orbit plot at t=500 years
+ob1 = rebound.OrbitPlot(sim, particles=[1,2,3,4,5,6])
+#ob2 = rebound.OrbitPlot(sim, particles=[6], primary=5, fig=ob1.fig, ax=ob1.ax, color='red')
+plt.gca().set_aspect('equal', 'box')
+plt.savefig(f'plots_perpendicular/m={m_moon_short}/orbit_plot_moon_500y_a={a_moon_short}_m={m_moon_short}.png', dpi=300, bbox_inches='tight')
+plt.close()

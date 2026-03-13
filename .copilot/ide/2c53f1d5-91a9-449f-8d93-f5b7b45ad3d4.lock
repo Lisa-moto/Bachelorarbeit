@@ -1,12 +1,12 @@
 {
-  "socketPath": "/tmp/mcp-tmeiXb/mcp.sock",
+  "socketPath": "/tmp/mcp-PkCcIi/mcp.sock",
   "scheme": "unix",
   "headers": {
-    "Authorization": "Nonce 9f5f5574-d443-49d4-bda6-8c8f50a9f49d"
+    "Authorization": "Nonce 15ee4249-68cf-4c25-9077-d8d890c7d5c5"
   },
-  "pid": 3226820,
+  "pid": 2384545,
   "ideName": "Visual Studio Code",
-  "timestamp": 1772107080550,
+  "timestamp": 1773410872571,
   "workspaceFolders": [
     "/home/tu/tu_tu/tu_zxown31"
   ],

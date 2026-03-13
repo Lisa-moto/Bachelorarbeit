@@ -42,7 +42,7 @@ def make_plot(phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3, a, m):
   n_angles = angles.shape[0]
 
   # Create a 2x4 grid and plot first n_to_plot angles
-  fig, axes = plt.subplots(4, 2, figsize=(12, 9), sharex=True)
+  fig, axes = plt.subplots(4, 2, figsize=(12, 10), sharex=True)
   axes = axes.flatten()
 
   for ax in axes:
@@ -52,21 +52,21 @@ def make_plot(phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3, a, m):
   for i in range(5):
     ax = axes[i]
     ax.plot(time_years, angles[i], lw=0.3)
-    ax.set_title(f'$\phi_{i}$')
-    ax.set_ylabel('resonant angle [deg]')
+    ax.set_title(f'$\phi_{i}$', size=16)
+    ax.set_ylabel('angle [deg]', size=15)
 
   for i in range(3):
     ax = axes[i+5]
     ax.plot(time_years, angles[i+5], lw=0.8)
-    ax.set_title(f'$\psi_{i+1}$')
-    ax.set_ylabel('resonant angle [deg]')
+    ax.set_title(f'$\psi_{i+1}$', size=16)
+    ax.set_ylabel('angle [deg]', size=15)
 
   # turn off any unused axes
   for j in range(n_angles, len(axes)):
     axes[j].axis('off')
 
   # label shared x-axis on bottom-left subplot (index 6 for our layout)
-  axes[6].set_xlabel('time [years]')
+  axes[6].set_xlabel('time [years]', size=15)
 
   output_dir = f'plots_aufgabe1_auto/plots_a={a}'
   os.makedirs(output_dir, exist_ok=True)
