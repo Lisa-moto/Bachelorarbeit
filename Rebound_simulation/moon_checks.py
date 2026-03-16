@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.001  # mass of the moon relative to planet f
-a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
+m_moon_short = 0.013  # mass of the moon relative to planet f
+a_moon_short = 0.4  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
 # load data
@@ -74,6 +74,13 @@ out = os.path.join(here, f'plots_a={a_moon_short}/plots_m={m_moon_short}/moon_sm
 plt.savefig(out, dpi=300, bbox_inches='tight')
 print(f"Saved {out}")
 plt.close()
+
+# print out the mean sma of the mooon in AU and km
+mean_sma_moon = np.mean(sma[:, 6])
+print(f"Mean semi major axis of the moon: {mean_sma_moon:.6f} AU")
+au_to_km = 149597870.7
+mean_sma_moon_km = mean_sma_moon * au_to_km
+print(f"Mean semi major axis of the moon: {mean_sma_moon_km:.2f} km")
 
 # plot for perpendicular moon
 # plt.tight_layout()
