@@ -94,7 +94,7 @@ incl[5] = np.deg2rad(0.523)
 # moon parameters
 a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f
 r_moon = 0.001*Rh[4]  # radius of the moon
-moon_mass = 1e-5*masses[5]
+moon_mass = 0.001*masses[5]
 inc_moon = np.deg2rad(0) # inclination of the moon's orbit
 a_moon_short = a_moon/Rh[4]
 m_moon_short = moon_mass/masses[5]
@@ -198,7 +198,7 @@ np.savetxt(f"data_ttv/transit_times_moon_m={m_moon_short}.txt", ttv)
 # Plot TTVs
 plt.figure(figsize=(8,5))
 plt.plot(n, ttv/60, lw=0.5, marker='.')
-plt.xlabel("Transit number")
-plt.ylabel("TTV [minutes]")
-plt.title("TTV of TOI-178 f with moon")
+plt.xlabel("Transit number", size=14)
+plt.ylabel("TTV [minutes]", size=14)
+plt.title("TTV of TOI-178f with moon", size=16)
 plt.savefig(f"TTV_plots/TTV_f_with_moon_m={m_moon_short}.png", dpi=300)

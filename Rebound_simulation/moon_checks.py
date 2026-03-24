@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.013  # mass of the moon relative to planet f
-a_moon_short = 0.4  # semi-major axis of the moon relative to planet f
+m_moon_short = 0.001  # mass of the moon relative to planet f
+a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
 # load data
@@ -51,7 +51,7 @@ axes = axes.flatten()
 # Plot semi major axis
 axes[0].plot(time_years, sma[:, 6], color='blue', zorder=10, label='sma of moon')
 axes[0].set_ylabel('Semi Major Axis [AU]', fontsize=14)
-axes[0].set_title('Semi Major Axis of the moon over time', fontsize=16)
+axes[0].set_title('Semi Major Axes over time', fontsize=16)
 axes[0].grid()
 # y-Achse von 0 bis 0.2 AU
 axes[0].set_ylim(0, 0.2)

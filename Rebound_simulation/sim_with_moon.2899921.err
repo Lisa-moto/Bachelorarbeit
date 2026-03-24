@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/tu/tu_tu/tu_zxown31/Rebound_simulation/sim_with_moon.py", line 287, in <module>
+    ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = simulation(sim)
+                                                              ~~~~~~~~~~^^^^^
+  File "/home/tu/tu_tu/tu_zxown31/Rebound_simulation/sim_with_moon.py", line 191, in simulation
+    sim.integrate(t, exact_finish_time=0)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tu/tu_tu/tu_zxown31/.conda/envs/main/lib/python3.14/site-packages/rebound/simulation.py", line 1427, in integrate
+    raise Collision("Two particles collided (d < r1+r2)")
+rebound.Collision: Two particles collided (d < r1+r2)

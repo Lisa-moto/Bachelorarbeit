@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/tu/tu_tu/tu_zxown31/Rebound_simulation/sim_with_moon.py", line 287, in <module>
+    ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = simulation(sim)
+                                                              ~~~~~~~~~~^^^^^
+  File "/home/tu/tu_tu/tu_zxown31/Rebound_simulation/sim_with_moon.py", line 216, in simulation
+    xyz_moon[i, 0] = ps[idx_moon].x
+                     ~~^^^^^^^^^^
+  File "/home/tu/tu_tu/tu_zxown31/.conda/envs/main/lib/python3.14/site-packages/rebound/particles.py", line 46, in __getitem__
+    raise AttributeError("Index {0} used to access particles out of range.".format(key))
+AttributeError: Index 7 used to access particles out of range.
