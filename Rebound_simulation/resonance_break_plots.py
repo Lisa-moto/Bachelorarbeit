@@ -2,11 +2,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
+##########################################################################################
+# Interesting cases, i.e. with sudden change
+##########################################################################################
+# a = 0.2; m = 0.003
+# a = 0.2; m = 0.005
+# a = 0.2; m = 0.009
+# a = 0.2; m = 0.01
+# a = 0.3; m = 0.005
+# a = 0.3; m = 0.006
+# a = 0.3; m = 0.007
+# a = 0.3; m = 0.01
+# a = 0.3; m = 0.013
+# a = 0.4; m = 0.004
+# a = 0.4; m = 0.007
+# a = 0.4; m = 0.012
+
+
 m_moon_short = 0.005  # mass of the moon relative to planet f
 a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
-# load data
+# Load data
 ##########################################################################################
 
 here = os.path.dirname(__file__)
@@ -38,21 +55,23 @@ orbital_parameters = {
 }
 
 ##########################################################################################
-# Eisntellbare Parameter
+# Choose what to plot!
 ##########################################################################################
-# Was soll geplottet werden? Z.B. sma
-subject = sma
-#Welche Resonanz wird betrachtet? Psi 1, 2 oder 3
+# What should be plotted? -> sma, ecc, lamb, omega, Omega oder inc
+subject = lamb
+# Which linestyle makes sense?
+linestyle = ':'
+# Which resonance is being considered? Psi 1, 2 or 3
 psi_select = 2
-# Welcher Zeitraum soll geplottet werden? (in Jahren, höchstens 500)
+# Which time period should be plotted? (in years, at most 500)
 time_start = 300
 time_end = 400
 
 ##########################################################################################
-# Hilfsfunktionen
+# Helper functions
 ##########################################################################################
 def get_label(data_array, param_dict):
-    """Gibt den Namen des Arrays aus dem Dict zurück."""
+    """Gives the label corresponding to the data_array from the param_dict"""
     for name, arr in param_dict.items():
         if arr is data_array:
             return name
@@ -78,7 +97,7 @@ def resonant_angles(longitude):
   return psi1, psi2, psi3
 
 ##########################################################################################
-# Berechnung
+# Calculation/Preparation
 ##########################################################################################
 psi1, psi2, psi3 = resonant_angles(lamb)
 psi_arrays = {1: psi1, 2: psi2, 3: psi3}
@@ -101,7 +120,7 @@ fig, ax1 = plt.subplots(figsize=(12, 6))
 
 # --- linke Achse: subject ---
 for i, (label, color) in enumerate(zip(planet_labels, colors)):
-    ax1.plot(time[mask], subject[mask, i], label=label, color=color)
+    ax1.plot(time[mask], subject[mask, i], label=label, color=color, linestyle=linestyle)
 
 ax1.set_xlabel('Time (years)')
 ax1.set_ylabel(subject_label, color='black')
@@ -118,8 +137,8 @@ ax2.set_ylim(0, 360)
 ax2.set_yticks([0, 90, 180, 270, 360])
 ax2.legend(loc='upper right')
 
-plt.title(f'{subject_label}  &  $\psi_{psi_select}$  over time\n'
-          f"(moon: $a={a_moon_short}\,R_{\text{Hill,f}}$ , $m={m_moon_short}\,m_{\text{f}}$)")
+plt.title(f'{subject_label}  &  $\\psi_{psi_select}$  over time\n'
+          f"(moon: $a={a_moon_short}\\,R_{{\\text{{Hill,f}}}}$ , $m={m_moon_short}\\,m_{{\\text{{f}}}}$)")
 plt.tight_layout()
 
 ##########################################################################################
