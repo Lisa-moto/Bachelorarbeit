@@ -19,8 +19,8 @@ import os
 # a = 0.4; m = 0.012
 
 
-m_moon_short = 0.005  # mass of the moon relative to planet f
-a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
+m_moon_short = 0.004  # mass of the moon relative to planet f
+a_moon_short = 0.4  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
 # Load data
@@ -58,14 +58,14 @@ orbital_parameters = {
 # Choose what to plot!
 ##########################################################################################
 # What should be plotted? -> sma, ecc, lamb, omega, Omega oder inc
-subject = lamb
+subject = sma
 # Which linestyle makes sense?
-linestyle = ':'
+linestyle = '-'
 # Which resonance is being considered? Psi 1, 2 or 3
-psi_select = 2
+psi_select = 3
 # Which time period should be plotted? (in years, at most 500)
-time_start = 300
-time_end = 400
+time_start = 100
+time_end = 200
 
 ##########################################################################################
 # Helper functions
@@ -130,8 +130,8 @@ ax1.legend(loc='upper left')
 
 # --- rechte Achse: resonant angle ---
 ax2 = ax1.twinx()
-ax2.scatter(time[mask], psi_data[mask], s=1, color='black', alpha=0.4,
-            label=rf'$\psi_{psi_select}$')
+ax2.plot(time[mask], psi_data[mask], color='black', alpha=0.7, linestyle='-',
+         label=rf'$\psi_{psi_select}$')
 ax2.set_ylabel(rf'$\psi_{psi_select}$ (deg)', color='black')
 ax2.set_ylim(0, 360)
 ax2.set_yticks([0, 90, 180, 270, 360])
