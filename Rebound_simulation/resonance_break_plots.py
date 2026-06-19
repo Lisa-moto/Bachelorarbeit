@@ -19,8 +19,8 @@ import os
 # a = 0.4; m = 0.012
 
 
-m_moon_short = 0.004  # mass of the moon relative to planet f
-a_moon_short = 0.4  # semi-major axis of the moon relative to planet f
+m_moon_short = 0.005  # mass of the moon relative to planet f
+a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
 # Load data
@@ -58,14 +58,18 @@ orbital_parameters = {
 # Choose what to plot!
 ##########################################################################################
 # What should be plotted? -> sma, ecc, lamb, omega, Omega oder inc
-subject = sma
+subject = ecc
 # Which linestyle makes sense?
-linestyle = '-'
+linestyle = ':'
 # Which resonance is being considered? Psi 1, 2 or 3
-psi_select = 3
+psi_select = 2
 # Which time period should be plotted? (in years, at most 500)
-time_start = 100
-time_end = 200
+time_start = 300
+time_end = 400
+
+# 'single' -> ein Plot mit allen Planeten
+# 'subplots' -> 6 kleine Plots, je ein Planet
+plot_mode = 'subplots'
 
 ##########################################################################################
 # Helper functions
@@ -113,33 +117,77 @@ mask    = (time >= time_start) & (time <= time_end)
 planet_labels = ['Planet b', 'Planet c', 'Planet d', 'Planet e', 'Planet f', 'Planet g']
 colors        = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown']
 
+moon_info = (f"(moon: $a={a_moon_short}\\,R_{{\\text{{Hill,f}}}}$, "
+             f"$m={m_moon_short}\\,m_{{\\text{{f}}}}$)")
+
 ##########################################################################################
 # Plot
 ##########################################################################################
-fig, ax1 = plt.subplots(figsize=(12, 6))
+def plot_single():
+    fig, ax1 = plt.subplots(figsize=(12, 6))
 
-# --- linke Achse: subject ---
-for i, (label, color) in enumerate(zip(planet_labels, colors)):
-    ax1.plot(time[mask], subject[mask, i], label=label, color=color, linestyle=linestyle)
+    for i, (label, color) in enumerate(zip(planet_labels, colors)):
+        ax1.plot(time[mask], subject[mask, i], label=label, color=color, linestyle=linestyle)
 
-ax1.set_xlabel('Time (years)')
-ax1.set_ylabel(subject_label, color='black')
-ax1.tick_params(axis='y')
-ax1.grid(alpha=0.3)
-ax1.legend(loc='upper left')
+    ax1.set_xlabel('Time (years)')
+    ax1.set_ylabel(subject_label)
+    ax1.grid(alpha=0.3)
+    ax1.legend(loc='upper left')
 
-# --- rechte Achse: resonant angle ---
-ax2 = ax1.twinx()
-ax2.plot(time[mask], psi_data[mask], color='black', alpha=0.7, linestyle='-',
-         label=rf'$\psi_{psi_select}$')
-ax2.set_ylabel(rf'$\psi_{psi_select}$ (deg)', color='black')
-ax2.set_ylim(0, 360)
-ax2.set_yticks([0, 90, 180, 270, 360])
-ax2.legend(loc='upper right')
+    ax2 = ax1.twinx()
+    ax2.scatter(time[mask], psi_data[mask], s=1, color='black', alpha=0.4,
+                label=rf'$\psi_{psi_select}$')
+    ax2.set_ylabel(rf'$\psi_{psi_select}$ (deg)')
+    ax2.set_ylim(0, 360)
+    ax2.set_yticks([0, 90, 180, 270, 360])
+    ax2.legend(loc='upper right')
 
-plt.title(f'{subject_label}  &  $\\psi_{psi_select}$  over time\n'
-          f"(moon: $a={a_moon_short}\\,R_{{\\text{{Hill,f}}}}$ , $m={m_moon_short}\\,m_{{\\text{{f}}}}$)")
-plt.tight_layout()
+    fig.suptitle(f'{subject_label}  &  $\\psi_{psi_select}$  over time\n' + moon_info)
+    plt.tight_layout()
+    return fig
+
+def plot_subplots():
+    fig, axes = plt.subplots(3, 2, figsize=(15, 8), sharex=True)
+    axes = axes.flatten()
+    
+    #subject_max = subject[mask].max()
+    #print(subject_max)
+    #ylim_subject = (0, subject_max * 1.05)
+
+    for i, (label, color) in enumerate(zip(planet_labels, colors)):
+        ax1 = axes[i]
+        ax1.plot(time[mask], subject[mask, i], color=color, linestyle=linestyle)
+        ax1.set_title(label)
+        ax1.set_ylabel(subject_label)
+        ax1.grid(alpha=0.3)
+        #ax1.set_ylim(ylim_subject)
+
+        # x-Achsenbeschriftung nur in unterster Reihe
+        if i >= 3:
+            ax1.set_xlabel('Time (years)')
+
+        ax2 = ax1.twinx()
+        ax2.scatter(time[mask], psi_data[mask], s=1, color='black', alpha=0.4,
+                    label=rf'$\psi_{psi_select}$')
+        ax2.set_ylim(0, 360)
+        ax2.set_yticks([0, 90, 180, 270, 360])
+
+        # y-Achsenbeschriftung für psi nur rechts außen (Spalte 1)
+        if i in (1, 3, 5):
+            ax2.set_ylabel(rf'$\psi_{psi_select}$ (deg)')
+        else:
+            ax2.set_yticklabels([])
+
+    fig.suptitle(f'{subject_label}  &  $\\psi_{psi_select}$  over time\n' + moon_info, y=1.01)
+    plt.tight_layout()
+    return fig
+
+if plot_mode == 'single':
+    fig = plot_single()
+elif plot_mode == 'subplots':
+    fig = plot_subplots()
+else:
+    raise ValueError(f"plot_mode must be 'single' or 'subplots', got '{plot_mode}'")
 
 ##########################################################################################
 # Save plot
@@ -147,7 +195,7 @@ plt.tight_layout()
 output_dir = f'resonance_break_plots/a={a_moon_short}'
 os.makedirs(output_dir, exist_ok=True)
 
-plt.tight_layout()
-plt.savefig(f'{output_dir}/{subject_label}_a={a_moon_short}_m={m_moon_short}_psi{psi_select}.png', dpi=300, bbox_inches='tight')
-print(f"Saved {subject_label}_a={a_moon_short}_m={m_moon_short}_psi{psi_select}")
+filename = f'{subject_label}_{plot_mode}_a={a_moon_short}_m={m_moon_short}_psi{psi_select}.png'
+plt.savefig(os.path.join(output_dir, filename), dpi=300, bbox_inches='tight')
+print(f"Saved {filename}")
 plt.close()
