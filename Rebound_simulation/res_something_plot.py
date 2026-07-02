@@ -170,7 +170,7 @@ else:
 ##########################################################################################
 # Save plot
 ##########################################################################################
-output_dir = f'resonance_break_plots'
+output_dir = f'resonance_break_plots/without_moon'
 os.makedirs(output_dir, exist_ok=True)
 
 filename = f'{subject_label}_{plot_mode}_psi{psi_select}_{time_start}-{time_end}.png'
