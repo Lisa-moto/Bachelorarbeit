@@ -2,8 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.001  # mass of the moon relative to planet f
+m_moon_short = 0.003  # mass of the moon relative to planet f
 a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
+m_short = 1.130  # mass of planet f relative to its original mass
 
 ##########################################################################################
 # load data
@@ -11,13 +12,13 @@ a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 
 here = os.path.dirname(__file__)
 
-# files without moon
-f_sma = os.path.join(here, 'data_sim/sma_planets.txt')
-f_longitude = os.path.join(here, 'data_sim/l_planets.txt')
-f_omega = os.path.join(here, 'data_sim/omega_planets.txt')
-f_node = os.path.join(here, 'data_sim/orbital_node_planets.txt')
-f_ecc = os.path.join(here, 'data_sim/ecc_planets.txt')
-f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
+# # files without moon
+# f_sma = os.path.join(here, 'data_sim/sma_planets.txt')
+# f_longitude = os.path.join(here, 'data_sim/l_planets.txt')
+# f_omega = os.path.join(here, 'data_sim/omega_planets.txt')
+# f_node = os.path.join(here, 'data_sim/orbital_node_planets.txt')
+# f_ecc = os.path.join(here, 'data_sim/ecc_planets.txt')
+# f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
 
 
 # # filenames with moon
@@ -27,6 +28,14 @@ f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
 # f_node = os.path.join(here, f'data_with_moon_a={a_moon_short}/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
 # f_ecc = os.path.join(here, f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
 # f_inc = os.path.join(here, f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+
+# filenames with heavier planet f
+f_sma = os.path.join(here, f'data_heavy_planet/sma_planets_m={m_short:.3f}.txt')
+f_longitude = os.path.join(here, f'data_heavy_planet/l_planets_m={m_short:.3f}.txt')
+f_omega = os.path.join(here, f'data_heavy_planet/omega_planets_m={m_short:.3f}.txt')
+f_node = os.path.join(here, f'data_heavy_planet/orbital_node_planets_m={m_short:.3f}.txt')
+f_ecc = os.path.join(here, f'data_heavy_planet/ecc_planets_m={m_short:.3f}.txt')
+f_inc = os.path.join(here, f'data_heavy_planet/inc_planets_m={m_short:.3f}.txt')
 
 """
 # filenames with perpendicular moon
@@ -144,10 +153,20 @@ for j in range(n_angles, len(axes)):
 axes[6].set_xlabel('time [years]', size=15)
 
 plt.tight_layout()
-out = os.path.join(here, 'plots/all_resonances.png')
+#out = os.path.join(here, 'plots/all_resonances.png')
 #out = os.path.join(here, f'plots_a={a_moon_short}/plots_m={m_moon_short}/all_resonances_a={a_moon_short}_m={m_moon_short}.png')
 #out = os.path.join(here, f'plots_perpendicular/m={m_moon_short}/all_resonances_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.png')
-plt.savefig(out, dpi=300, bbox_inches='tight')
-print(f"Saved {out}")
-plt.close()
+# plt.savefig(out, dpi=300, bbox_inches='tight')
+# print(f"Saved {out}")
+# plt.close()
 
+##########################################################################################
+# Save plot for heavier planet f
+##########################################################################################
+output_dir = f'plots_heavy_planet/plots_m={m_short:.3f}'
+os.makedirs(output_dir, exist_ok=True)
+
+filename = f'all_resonances_m={m_short:.3f}.png'
+plt.savefig(os.path.join(output_dir, filename), dpi=300, bbox_inches='tight')
+print(f"Saved {filename}")
+plt.close()
