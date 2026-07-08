@@ -27,7 +27,7 @@ masses[1] = 1.5*M_E
 masses[2] = 4.77*M_E
 masses[3] = 3.01*M_E
 masses[4] = 3.86*M_E
-masses[5] = 7.72*M_E + M_E
+masses[5] = 7.72*M_E + 1.5*M_E
 masses[6] = 3.94*M_E
 
 m_short = masses[5]/(7.72*M_E)
