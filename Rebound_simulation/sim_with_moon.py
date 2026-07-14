@@ -113,8 +113,8 @@ lambd[5] = -1.737573
 """
 
 # moon parameters
-a_moon = 0.2*Rh[4]    # semi-major axis of the moon around planet f
-moon_mass = 0.003*masses[5]
+a_moon = 0.102*Rh[4]    # semi-major axis of the moon around planet f
+moon_mass = 0.002*masses[5]
 r_moon = 0.001*Rh[4]  # radius of the moon
 inc_moon = incl[4]  # inclination of the moon's orbit; same as planet f's inclination
 a_moon_short = a_moon/Rh[4]
