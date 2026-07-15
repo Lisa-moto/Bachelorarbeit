@@ -17,19 +17,19 @@ a_moon_short = 0.2  # semi major axis of the moon relative to planet f
 here = os.path.dirname(__file__)
 
 # filenames
-f_sma = os.path.join(here, f'data_aufgabe1_auto/data_moon_a={a_moon_short}/sma_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_longitude = os.path.join(here, f'data_aufgabe1_auto/data_moon_a={a_moon_short}/l_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_omega = os.path.join(here, f'data_aufgabe1_auto/data_moon_a={a_moon_short}/omega_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_node = os.path.join(here, f'data_aufgabe1_auto/data_moon_a={a_moon_short}/orbital_node_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_ecc = os.path.join(here, f'data_aufgabe1_auto/data_moon_a={a_moon_short}/ecc_moon_a={a_moon_short}_m={m_moon_short}.txt')
-f_inc = os.path.join(here, f'data_aufgabe1_auto/data_moon_a={a_moon_short}/inc_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_sma = os.path.join(here, f'data/data_with_moon/data_moon_a={a_moon_short}/sma_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_longitude = os.path.join(here, f'data/data_with_moon/data_moon_a={a_moon_short}/l_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_omega = os.path.join(here, f'data/data_with_moon/data_moon_a={a_moon_short}/omega_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_node = os.path.join(here, f'data/data_with_moon/data_moon_a={a_moon_short}/orbital_node_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_ecc = os.path.join(here, f'data/data_with_moon/data_moon_a={a_moon_short}/ecc_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_inc = os.path.join(here, f'data/data_with_moon/data_moon_a={a_moon_short}/inc_moon_a={a_moon_short}_m={m_moon_short}.txt')
 
-f_sma_without_moon = os.path.join(here, f'data_sim/sma_planets.txt')
-f_longitude_without_moon = os.path.join(here, f'data_sim/l_planets.txt')
-f_omega_without_moon = os.path.join(here, 'data_sim/omega_planets.txt')
-f_node_without_moon = os.path.join(here, 'data_sim/orbital_node_planets.txt')
-f_ecc_without_moon = os.path.join(here, 'data_sim/ecc_planets.txt')
-f_inc_without_moon = os.path.join(here, 'data_sim/inc_planets.txt')
+f_sma_without_moon = os.path.join(here, f'data/data_without_moon/sma_planets.txt')
+f_longitude_without_moon = os.path.join(here, f'data/data_without_moon/l_planets.txt')
+f_omega_without_moon = os.path.join(here, 'data/data_without_moon/omega_planets.txt')
+f_node_without_moon = os.path.join(here, 'data/data_without_moon/orbital_node_planets.txt')
+f_ecc_without_moon = os.path.join(here, 'data/data_without_moon/ecc_planets.txt')
+f_inc_without_moon = os.path.join(here, 'data/data_without_moon/inc_planets.txt')
 
 # load
 # shape: (nsteps, nplanets)
@@ -86,7 +86,7 @@ linestyle = ':'
 time_start = 0
 time_end = 500
 # Which planet should be plotted? (0-5 for planets b-g)
-planet_index = 4
+planet_index = 0
 
 
 ##########################################################################################
@@ -112,7 +112,7 @@ n_steps = subject.shape[0]
 time    = np.linspace(0, 500, n_steps)
 mask    = (time >= time_start) & (time <= time_end)
 
-planet_labels = ['Planet b', 'Planet c', 'Planet d', 'Planet e', 'Planet f', 'Planet g']
+planet_labels = ['Planet f']
 
 moon_info = (f"(moon: $a={a_moon_short}\\,R_{{\\text{{Hill,f}}}}$, "
              f"$m={m_moon_short}\\,m_{{\\text{{f}}}}$)")
@@ -156,7 +156,7 @@ fig = make_plot()
 ##########################################################################################
 # Save plot
 ##########################################################################################
-output_dir = f'plots_a={a_moon_short}/plots_m={m_moon_short}'
+output_dir = f'plots/plots_a={a_moon_short}/plots_m={m_moon_short}'
 os.makedirs(output_dir, exist_ok=True)
 
 filename = f'{subject_short_name}_difference_a={a_moon_short}_m={m_moon_short}.png'
