@@ -19,8 +19,8 @@ import os
 # a = 0.4; m = 0.012
 
 
-m_moon_short = 0.012  # mass of the moon relative to planet f
-a_moon_short = 0.4  # semi-major axis of the moon relative to planet f
+m_moon_short = 0.003  # mass of the moon relative to planet f
+a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 
 ##########################################################################################
 # Load data
@@ -58,14 +58,14 @@ orbital_parameters = {
 # Choose what to plot!
 ##########################################################################################
 # What should be plotted? -> sma, ecc, lamb, omega, Omega oder inc
-subject = ecc
+subject = omega
 # Which linestyle makes sense?
 linestyle = ':'
 # Which resonance is being considered? Psi 1, 2 or 3
 psi_select = 1
 # Which time period should be plotted? (in years, at most 500)
 time_start = 0
-time_end = 300
+time_end = 500
 
 # 'single' -> ein Plot mit allen Planeten
 # 'subplots' -> 6 kleine Plots, je ein Planet
