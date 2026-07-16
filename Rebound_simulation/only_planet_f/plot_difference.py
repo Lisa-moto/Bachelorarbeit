@@ -79,12 +79,12 @@ short_names = {
 # Choose what to plot!
 ##########################################################################################
 # What should be plotted? -> sma, ecc, longitude, omega, Omega oder inc
-subject = ecc
+subject = longitude
 # Which linestyle makes sense?
 linestyle = ':'
 # Which time period should be plotted? (in years, at most 500)
 time_start = 0
-time_end = 500
+time_end = 10
 # Which planet should be plotted? (0-5 for planets b-g)
 planet_index = 0
 
@@ -159,7 +159,7 @@ fig = make_plot()
 output_dir = f'plots/plots_a={a_moon_short}/plots_m={m_moon_short}'
 os.makedirs(output_dir, exist_ok=True)
 
-filename = f'{subject_short_name}_difference_a={a_moon_short}_m={m_moon_short}.png'
+filename = f'{subject_short_name}_difference_a={a_moon_short}_m={m_moon_short}_{time_start}-{time_end}.png'
 plt.savefig(os.path.join(output_dir, filename), dpi=300, bbox_inches='tight')
 print(f"Saved {filename}")
 plt.close()
