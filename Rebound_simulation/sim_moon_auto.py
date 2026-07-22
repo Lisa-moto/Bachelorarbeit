@@ -95,12 +95,12 @@ def setupSimulation(a, m):
 # Setting up the Simulation
   sim = rebound.Simulation()
   sim.collision = 'direct'
-  sim.collision_resolve = 'merge'
+  sim.collision_resolve = 'halt'
   sim.G = 6.6743e-11
 
   # moon parameters
   r_moon = 0.001*Rh[4]  # radius of the moon
-  inc_moon = np.deg2rad(0) # inclination of the moon's orbit
+  inc_moon = incl[4] # inclination of the moon's orbit equal to the inclination of planet f
   a_moon = a*Rh[4]
   moon_mass = m*masses[5]
   

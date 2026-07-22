@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.002  # mass of the moon relative to planet f
-a_moon_short = 0.102  # semi-major axis of the moon relative to planet f
+m_moon_short = 0.003  # mass of the moon relative to planet f
+a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 m_short = 1.259  # mass of planet f relative to its original mass
 plot_mode = 'psi' # plot_type can be 'all' or 'psi' for plotting only the psi angles
 

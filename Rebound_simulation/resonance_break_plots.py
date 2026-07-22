@@ -62,10 +62,10 @@ subject = lamb
 # Which linestyle makes sense?
 linestyle = ':'
 # Which resonance is being considered? Psi 1, 2 or 3
-psi_select = 1
+psi_select = 3
 # Which time period should be plotted? (in years, at most 500)
 time_start = 0
-time_end = 100
+time_end = 300
 
 # 'single' -> ein Plot mit allen Planeten
 # 'subplots' -> 6 kleine Plots, je ein Planet
@@ -117,8 +117,8 @@ mask    = (time >= time_start) & (time <= time_end)
 planet_labels = ['Planet b', 'Planet c', 'Planet d', 'Planet e', 'Planet f', 'Planet g']
 colors        = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown']
 
-moon_info = (f"(moon: $a={a_moon_short}\\,R_{{\\text{{Hill,f}}}}$, "
-             f"$m={m_moon_short}\\,m_{{\\text{{f}}}}$)")
+moon_info = (f"(moon: $a={a_moon_short}\\,R_{{\text{{Hill,f}}}}$, "
+             f"$m={m_moon_short}\\,m_{{\text{{f}}}}$)")
 
 ##########################################################################################
 # Plot
