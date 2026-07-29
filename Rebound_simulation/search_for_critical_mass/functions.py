@@ -20,7 +20,7 @@ def laplace_angles(longitude):
   return psi1, psi2, psi3
 
 
-def is_laplace_resonant(phi_deg, threshold_deg=177.0, return_diagnostics=False):
+def is_laplace_resonant(phi_deg, threshold_deg=179.0, return_diagnostics=False):
     """
     Prüft, ob ein Laplace-Winkel (Zeitreihe, in Grad) noch resoniert,
     d.h. librativ statt zirkulierend ist.
@@ -68,36 +68,38 @@ def is_laplace_resonant(phi_deg, threshold_deg=177.0, return_diagnostics=False):
 
 
 
-def libration_score(psi_deg):
-    """
-    Gibt zurück: (is_librating: bool, circ_std_deg: float)
-    psi_deg: 1D array, Winkel in Grad über die Zeit
-    """
-    psi_rad = np.deg2rad(psi_deg)
-    R = np.sqrt(np.mean(np.sin(psi_rad))**2 + np.mean(np.cos(psi_rad))**2)
-    circ_std = np.inf if R <= 1e-12 else np.rad2deg(np.sqrt(-2*np.log(R)))
-    is_librating = circ_std < 90  # Schwellwert, siehe unten
-    return is_librating, circ_std
 
 
-def init_results_file(path='results_moon_scan.csv'):
-    file_exists = os.path.isfile(path)
-    f = open(path, 'a', newline='')
-    writer = csv.writer(f)
-    if not file_exists:
-        writer.writerow(['a', 'm', 'psi1_librating', 'psi1_std',
-                          'psi2_librating', 'psi2_std',
-                          'psi3_librating', 'psi3_std'])
-    return f, writer
 
-
-def append_result(writer, f, a, m, results):
-    # results: dict {'psi1': (bool, std), 'psi2': (...), 'psi3': (...)}
-    writer.writerow([
-        a, m,
-        results['psi1'][0], results['psi1'][1],
-        results['psi2'][0], results['psi2'][1],
-        results['psi3'][0], results['psi3'][1],
-    ])
+def init_resonance_file(path):
+    """Öffnet die Resonanz-Ausgabedatei neu und schreibt den Header."""
+    f = open(path, 'w')
+    f.write("sma,psi1,psi2,psi3\n")
     f.flush()
-    os.fsync(f.fileno())
+    return f
+
+
+def init_instability_file(path):
+    """Öffnet die Instabilitäts-Ausgabedatei neu und schreibt den Header."""
+    f = open(path, 'w')
+    f.write("reason,year,sma,mass\n")
+    f.flush()
+    return f
+
+
+def write_resonance_row(f, sma, psi1_mass, psi2_mass, psi3_mass):
+    """
+    Schreibt eine Zeile in die Resonanz-Datei. psi*_mass ist entweder
+    die Masse, bei der die jeweilige Resonanz gebrochen ist, oder None,
+    falls sie im untersuchten Massenbereich nie gebrochen ist.
+    """
+    def fmt(x):
+        return "" if x is None else f"{x}"
+    f.write(f"{sma},{fmt(psi1_mass)},{fmt(psi2_mass)},{fmt(psi3_mass)}\n")
+    f.flush()
+
+
+def write_instability_row(f, reason, year, sma, mass):
+    """Schreibt eine Zeile in die Instabilitäts-Datei."""
+    f.write(f"{reason},{year:.4f},{sma},{mass}\n")
+    f.flush()

@@ -2,6 +2,18 @@ import numpy as np
 import rebound
 import os
 
+# class for the case of an unstable moon (collision or ejection)
+class SimulationInstabilityError(Exception):
+    """
+    Wird ausgelöst, wenn der Mond durch Kollision oder Ejection instabil wird.
+    Enthält nur den Grund und den Zeitpunkt (in Jahren) des Abbruchs.
+    """
+    def __init__(self, reason, year):
+        self.reason = reason   # "collision" oder "ejection"
+        self.year = year       # Zeitpunkt des Abbruchs in Jahren
+        super().__init__(f"Simulation abgebrochen wegen '{reason}' bei t={year:.2f} Jahren")
+        
+
 # constants
 M_E=5.972e24
 M_S=1.989e30
@@ -91,6 +103,9 @@ lambd = np.zeros(6)
 for i in range(6): 
   lambd[i] = -(2*np.pi/P[i])*((T0[i]-date_ci)*day_in_second)-np.pi/2
 
+### maximum distance for a body to be considered in the simulation ###
+EXIT_MAX_DISTANCE = 5*sma[5] 
+
 def setupSimulation(a, m):
 # Setting up the Simulation
   sim = rebound.Simulation()
@@ -103,6 +118,7 @@ def setupSimulation(a, m):
   inc_moon = incl[4] # inclination of the moon's orbit equal to the inclination of planet f
   a_moon = a*Rh[4]
   moon_mass = m*masses[5]
+  
   
   # placing the planets and the star
 
@@ -148,10 +164,17 @@ def simulation(sim):
   xyz_f = np.zeros((Nsteps,3))
   xyz_moon = np.zeros((Nsteps,3))
   
+  sim.exit_max_distance = EXIT_MAX_DISTANCE
+  
   
   for i,t in enumerate(times):
   ### time step and data collection ###
-    sim.integrate(t, exact_finish_time=0)
+    try: 
+      sim.integrate(t, exact_finish_time=0)
+    except rebound.Collision:
+      raise SimulationInstabilityError("collision", sim.t / day_in_second / 365.25) from None
+    except rebound.Escape:
+      raise SimulationInstabilityError("ejection", sim.t / day_in_second / 365.25) from None
 
     N = sim.N
     
@@ -183,6 +206,18 @@ def simulation(sim):
     ecc[i, idx_moon-1] = o.e
     sma[i, idx_moon-1] = o.a / AU
 
+
+    # Distanz Mond <-> Planet f (für Hill-Radius-Vergleich)
+    dx = ps[idx_moon].x - ps[idx_f].x
+    dy = ps[idx_moon].y - ps[idx_f].y
+    dz = ps[idx_moon].z - ps[idx_f].z
+    dist_moon_f = np.sqrt(dx**2 + dy**2 + dz**2)
+
+    # Ejection: entweder eindeutig hyperbolisch relativ zu f,
+    # oder schon außerhalb von f's Hill-Sphäre (unabhängig vom momentanen e)
+    if o.e >= 1.0 or dist_moon_f > Rh[4]:
+      raise SimulationInstabilityError("ejection", t / day_in_second / 365.25)
+    
     
     print("The time is %5d years "% (t/(60*60*24*365.25)))
 

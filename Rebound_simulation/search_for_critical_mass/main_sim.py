@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import functions
 
 parent_dir = Path(__file__).resolve().parents[1]
 if str(parent_dir) not in sys.path:
@@ -20,14 +21,22 @@ while i <= end_a:
     j = start_m
     while j<= end_m:
         sim = sim_moon_auto.setupSimulation(a=i, m=j)
-        ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = sim_moon_auto.simulation(sim)
-        #sim_moon_auto.safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon, a=i, m=j)
-        #phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3 = resonance_plot_auto.resonant_angles(longitude, omega, orbital_node)
-        #resonance_plot_auto.make_plot(phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3, a=i, m=j)
-        is_resonant = functions.check_resonance(longitude, omega, orbital_node)
-        if not is_resonant:
-            print(f"Critical mass found for a={i} and m={j}")
+        try:
+            ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon = sim_moon_auto.simulation(sim)
+        except sim_moon_auto.SimulationInstabilityError as e:
+            print(f"a={i}, m={j}: instabil ({e.reason}) bei t={e.year:.2f} Jahren")
             j += 0.00001
             j = round(j, 5)
+            continue
+
+        psi1, psi2, psi3 = functions.laplace_angles(longitude)
+        is_resonant_psi1 = functions.is_laplace_resonant(psi1)
+        is_resonant_psi2 = functions.is_laplace_resonant(psi2)
+        is_resonant_psi3 = functions.is_laplace_resonant(psi3)
+        
+        if not is_resonant_psi1 and not is_resonant_psi2 and not is_resonant_psi3:
+            print(f"Critical mass found for a={i} and m={j}")
+        j += 0.00001
+        j = round(j, 5)
     i += 0.001
     i = round(i, 3)
