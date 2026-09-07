@@ -74,7 +74,7 @@ def is_laplace_resonant(phi_deg, threshold_deg=179.0, return_diagnostics=False):
 def init_resonance_file(path):
     """Öffnet die Resonanz-Ausgabedatei neu und schreibt den Header."""
     f = open(path, 'w')
-    f.write("sma,psi1,psi2,psi3\n")
+    f.write("sma,psi1,psi1_break_year,psi2,psi2_break_year,psi3,psi3_break_year\n")
     f.flush()
     return f
 
@@ -87,19 +87,22 @@ def init_instability_file(path):
     return f
 
 
-def write_resonance_row(f, sma, psi1_mass, psi2_mass, psi3_mass):
-    """
-    Schreibt eine Zeile in die Resonanz-Datei. psi*_mass ist entweder
-    die Masse, bei der die jeweilige Resonanz gebrochen ist, oder None,
-    falls sie im untersuchten Massenbereich nie gebrochen ist.
-    """
-    def fmt(x):
-        return "" if x is None else f"{x}"
-    f.write(f"{sma},{fmt(psi1_mass)},{fmt(psi2_mass)},{fmt(psi3_mass)}\n")
+def _fmt(x, decimals=5):
+    """Formatiert einen Float als String mit fester Nachkommastellenzahl,
+    oder gibt 'None' zurück, falls x None ist."""
+    return "None" if x is None else f"{x:.{decimals}f}"
+
+
+def write_resonance_row(f, sma, psi1_mass, psi1_year, psi2_mass, psi2_year, psi3_mass, psi3_year):
+    f.write(
+        f"{_fmt(sma, 3)},"
+        f"{_fmt(psi1_mass)},{_fmt(psi1_year, 2)},"
+        f"{_fmt(psi2_mass)},{_fmt(psi2_year, 2)},"
+        f"{_fmt(psi3_mass)},{_fmt(psi3_year, 2)}\n"
+    )
     f.flush()
 
 
 def write_instability_row(f, reason, year, sma, mass):
-    """Schreibt eine Zeile in die Instabilitäts-Datei."""
-    f.write(f"{reason},{year:.4f},{sma},{mass}\n")
+    f.write(f"{reason},{year:.4f},{_fmt(sma, 3)},{_fmt(mass)}\n")
     f.flush()

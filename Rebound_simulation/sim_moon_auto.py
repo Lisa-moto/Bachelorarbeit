@@ -1,6 +1,7 @@
 import numpy as np
 import rebound
 import os
+import functions
 
 # class for the case of an unstable moon (collision or ejection)
 class SimulationInstabilityError(Exception):
@@ -21,7 +22,7 @@ R_sun = 696340000
 AU = 1.5e11
 Rstar = 0.651*R_sun
 
-Ndays=500*365.25
+Ndays=5000*365.25
 orbit_time = 365.25
 day_in_second = 60*60*24
 Nsteps = 10000
@@ -104,7 +105,17 @@ for i in range(6):
   lambd[i] = -(2*np.pi/P[i])*((T0[i]-date_ci)*day_in_second)-np.pi/2
 
 ### maximum distance for a body to be considered in the simulation ###
-EXIT_MAX_DISTANCE = 5*sma[5] 
+EXIT_MAX_DISTANCE = 5*sma[5]
+
+### Kontrollpunkte für frühzeitigen Abbruch (in Jahren) ###
+CHECKPOINT_YEARS = [50, 500]
+
+
+def _checkpoint_index(year):
+    """Index in 'times', der dem gegebenen Jahr am nächsten liegt (aufgerundet)."""
+    target_seconds = year * 365.25 * day_in_second
+    idx = np.searchsorted(times, target_seconds, side='left')
+    return min(idx, Nsteps - 1)
 
 def setupSimulation(a, m):
 # Setting up the Simulation
@@ -150,26 +161,30 @@ def setupSimulation(a, m):
 
 
 def simulation(sim):
-### Definig simulation calculation and data entries ###
+  ### Definig simulation calculation and data entries ###
   N = sim.N
-  # Store arrays with shape (nsteps, nplanets) so rows=time, columns=planet
   ecc = np.zeros((Nsteps, Nt))
   sma = np.zeros((Nsteps, Nt))
   inc = np.zeros((Nsteps, Nt))
-  #mean_montion = np.zeros((Nsteps, Nt))
   omega = np.zeros((Nsteps, Nt))
   longitude = np.zeros((Nsteps, Nt))
   orbital_node = np.zeros((Nsteps, Nt))
-  # array for coordinates of planet f and its moon
   xyz_f = np.zeros((Nsteps,3))
   xyz_moon = np.zeros((Nsteps,3))
-  
+
   sim.exit_max_distance = EXIT_MAX_DISTANCE
-  
-  
-  for i,t in enumerate(times):
-  ### time step and data collection ###
-    try: 
+
+  # Array-Indizes der Kontrollpunkte, an denen zwischenzeitlich geprüft wird
+  checkpoint_indices = set(_checkpoint_index(y) for y in CHECKPOINT_YEARS)
+
+  # Merkt sich pro Winkel, bei welchem Jahr er zum ersten Mal nicht mehr
+  # resonant war. None = bislang (noch) resonant.
+  break_year = {"psi1": None, "psi2": None, "psi3": None}
+
+  actual_steps = Nsteps  # wird bei frühem Abbruch reduziert
+
+  for i, t in enumerate(times):
+    try:
       sim.integrate(t, exact_finish_time=0)
     except rebound.Collision:
       raise SimulationInstabilityError("collision", sim.t / day_in_second / 365.25) from None
@@ -177,23 +192,18 @@ def simulation(sim):
       raise SimulationInstabilityError("ejection", sim.t / day_in_second / 365.25) from None
 
     N = sim.N
-    
     ps = sim.particles
 
-    # store planet data
-    for j in range(1,N):
-      # store per-time-step in row i, planet index j-1 in column
+    for j in range(1, N):
       ecc[i, j-1] = ps[j].e
       sma[i, j-1] = ps[j].a / AU
       inc[i, j-1] = np.rad2deg(ps[j].inc)
-      #mean_montion[i, j-1] = ps[j].n
       omega[i, j-1] = ps[j].pomega
       longitude[i, j-1] = ps[j].l
       orbital_node[i, j-1] = ps[j].Omega
 
-    # store moon data
     idx_f = 5
-    idx_moon = 7 # moon is the last particle in the simulation
+    idx_moon = 7
 
     xyz_f[i, 0] = ps[idx_f].x
     xyz_f[i, 1] = ps[idx_f].y
@@ -202,27 +212,65 @@ def simulation(sim):
     xyz_moon[i, 0] = ps[idx_moon].x
     xyz_moon[i, 1] = ps[idx_moon].y
     xyz_moon[i, 2] = ps[idx_moon].z
-    o = sim.particles[idx_moon].orbit(primary=sim.particles[idx_f])  # moon orbiting planet f
+
+    o = sim.particles[idx_moon].orbit(primary=sim.particles[idx_f])
     ecc[i, idx_moon-1] = o.e
     sma[i, idx_moon-1] = o.a / AU
 
-
-    # Distanz Mond <-> Planet f (für Hill-Radius-Vergleich)
     dx = ps[idx_moon].x - ps[idx_f].x
     dy = ps[idx_moon].y - ps[idx_f].y
     dz = ps[idx_moon].z - ps[idx_f].z
     dist_moon_f = np.sqrt(dx**2 + dy**2 + dz**2)
 
-    # Ejection: entweder eindeutig hyperbolisch relativ zu f,
-    # oder schon außerhalb von f's Hill-Sphäre (unabhängig vom momentanen e)
     if o.e >= 1.0 or dist_moon_f > Rh[4]:
       raise SimulationInstabilityError("ejection", t / day_in_second / 365.25)
-    
-    
+
+    # --- Zwischen-Check an den Kontrollpunkten ---
+    if i in checkpoint_indices:
+      year_now = t / day_in_second / 365.25
+      psi1, psi2, psi3 = functions.laplace_angles(longitude[:i+1])
+      still_resonant = {
+          "psi1": functions.is_laplace_resonant(psi1),
+          "psi2": functions.is_laplace_resonant(psi2),
+          "psi3": functions.is_laplace_resonant(psi3),
+      }
+      for key, resonant in still_resonant.items():
+        if not resonant and break_year[key] is None:
+          break_year[key] = year_now
+
+      # Wenn alle drei Winkel bereits gebrochen sind, bringt weiteres
+      # Integrieren keine zusätzliche Information -> früh abbrechen.
+      if all(v is not None for v in break_year.values()):
+        actual_steps = i + 1
+        break
+
     print("The time is %5d years "% (t/(60*60*24*365.25)))
 
+  # Arrays auf die tatsächlich berechneten Schritte kürzen
+  ecc = ecc[:actual_steps]
+  sma = sma[:actual_steps]
+  inc = inc[:actual_steps]
+  omega = omega[:actual_steps]
+  longitude = longitude[:actual_steps]
+  orbital_node = orbital_node[:actual_steps]
+  xyz_f = xyz_f[:actual_steps]
+  xyz_moon = xyz_moon[:actual_steps]
 
-  return ecc,sma,inc,omega,longitude,orbital_node,xyz_f,xyz_moon
+  # Abschluss-Check: Winkel, die bis hierhin noch nicht als gebrochen
+  # markiert wurden, final anhand der vollständigen (bzw. bis zum frühen
+  # Abbruch vorhandenen) Zeitreihe prüfen
+  end_year = times[actual_steps-1] / day_in_second / 365.25
+  psi1, psi2, psi3 = functions.laplace_angles(longitude)
+  final_resonant = {
+      "psi1": functions.is_laplace_resonant(psi1),
+      "psi2": functions.is_laplace_resonant(psi2),
+      "psi3": functions.is_laplace_resonant(psi3),
+  }
+  for key, resonant in final_resonant.items():
+    if not resonant and break_year[key] is None:
+      break_year[key] = end_year
+
+  return ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon, break_year
 
 
 def safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon, a, m):
