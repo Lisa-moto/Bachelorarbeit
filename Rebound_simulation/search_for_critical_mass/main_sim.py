@@ -10,8 +10,9 @@ if str(parent_dir) not in sys.path:
 import sim_moon_auto
 import functions
 
-start_m = 0.00001
-end_m = 0.01
+#start_m = 0.00001
+#end_m = 0.01
+masses_to_test = functions.build_mass_array(points_per_decade=50)
 start_a = 0.001
 end_a = 0.5
 
@@ -28,8 +29,8 @@ try:
         break_mass_psi2, break_year_psi2 = None, None
         break_mass_psi3, break_year_psi3 = None, None
 
-        j = start_m
-        while j <= end_m:
+        
+        for j in masses_to_test:
             sim = sim_moon_auto.setupSimulation(a=i, m=j)
 
             try:
@@ -38,8 +39,6 @@ try:
             except sim_moon_auto.SimulationInstabilityError as e:
                 functions.write_instability_row(instability_file, e.reason, e.year, i, j)
                 print(f"a={i}, m={j}: instabil ({e.reason}) bei t={e.year:.2f} Jahren")
-                j += 0.00001
-                j = round(j, 5)
                 continue
 
             # nur beim ERSTEN Brechen Masse UND Jahr festhalten
@@ -53,8 +52,6 @@ try:
                 break_mass_psi3 = j
                 break_year_psi3 = break_year["psi3"]
 
-            j += 0.00001
-            j = round(j, 5)
 
         functions.write_resonance_row(
             resonance_file, i,

@@ -24,3 +24,7 @@ print(f"Is the system in Laplace resonance? {is_resonant}")
 print(f"Amplitude of psi3: {diagnostics['amplitude_deg']:.2f} degrees")
 print(f"Mean angle of psi3: {diagnostics['mean_angle_deg']:.2f} degrees")
 print(f"Circular standard deviation of psi3: {diagnostics['circular_std_deg']:.2f} degrees")
+
+
+masses_to_test = functions.build_mass_array()
+print(len(masses_to_test), masses_to_test[:10], masses_to_test[-5:])

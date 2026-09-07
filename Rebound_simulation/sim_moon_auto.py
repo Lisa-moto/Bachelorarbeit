@@ -25,7 +25,7 @@ Rstar = 0.651*R_sun
 Ndays=5000*365.25
 orbit_time = 365.25
 day_in_second = 60*60*24
-Nsteps = 10000
+Nsteps = 100000
 times = np.linspace(0, Ndays*day_in_second, Nsteps)
 timestep = (times[2]-times[1])
 Nt = 7 # 6 planets + 1 moon
@@ -125,7 +125,7 @@ def setupSimulation(a, m):
   sim.G = 6.6743e-11
 
   # moon parameters
-  r_moon = 0.001*Rh[4]  # radius of the moon
+  r_moon = 0.0005*Rh[4]  # radius of the moon
   inc_moon = incl[4] # inclination of the moon's orbit equal to the inclination of planet f
   a_moon = a*Rh[4]
   moon_mass = m*masses[5]

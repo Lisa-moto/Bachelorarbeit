@@ -67,9 +67,7 @@ def is_laplace_resonant(phi_deg, threshold_deg=179.0, return_diagnostics=False):
     return is_resonant
 
 
-
-
-
+### für die CSV-Ausgabe der Simulationsergebnisse ###
 
 def init_resonance_file(path):
     """Öffnet die Resonanz-Ausgabedatei neu und schreibt den Header."""
@@ -106,3 +104,18 @@ def write_resonance_row(f, sma, psi1_mass, psi1_year, psi2_mass, psi2_year, psi3
 def write_instability_row(f, reason, year, sma, mass):
     f.write(f"{reason},{year:.4f},{_fmt(sma, 3)},{_fmt(mass)}\n")
     f.flush()
+
+
+### für die Massen-Array-Berechnung im Resonanz-Suchlauf ###
+
+def build_mass_array(discrete_low=(1e-9, 1e-8, 1e-7),
+                      log_start=1e-6, log_end=0.01,
+                      points_per_decade=100):
+    """
+    Baut das Massen-Array: feste Einzelwerte im untersten Bereich,
+    danach logarithmisch gleichverteilt.
+    """
+    n_decades = np.log10(log_end / log_start)
+    n_log_points = int(round(n_decades * points_per_decade)) + 1
+    log_part = np.logspace(np.log10(log_start), np.log10(log_end), n_log_points)
+    return np.concatenate([np.array(discrete_low), log_part])
