@@ -2,6 +2,7 @@ import numpy as np
 import rebound
 import os
 import functions
+from pathlib import Path
 
 # class for the case of an unstable moon (collision or ejection)
 class SimulationInstabilityError(Exception):
@@ -25,9 +26,7 @@ Rstar = 0.651*R_sun
 Ndays=5000*365.25
 orbit_time = 365.25
 day_in_second = 60*60*24
-Nsteps = 100000
-times = np.linspace(0, Ndays*day_in_second, Nsteps)
-timestep = (times[2]-times[1])
+
 Nt = 7 # 6 planets + 1 moon
 
 
@@ -78,6 +77,13 @@ P[3] = 9.961881*day_in_second
 P[4] = 15.231915*day_in_second
 P[5] = 20.70950*day_in_second
 
+### Zeitliche Auflösung: 3 Datenpunkte pro Orbit des äußersten Planeten (g) ###
+POINTS_PER_OUTER_ORBIT = 3
+output_dt = P[5] / POINTS_PER_OUTER_ORBIT          # Sekunden zwischen zwei Ausgabepunkten
+Nsteps = int(round(Ndays*day_in_second / output_dt)) + 1
+times = np.linspace(0, Ndays*day_in_second, Nsteps)
+timestep = (times[2]-times[1])
+
 # Transit time in the observation
 T0 = np.zeros(6)
 T0[0] = 2458741.6365
@@ -108,7 +114,7 @@ for i in range(6):
 EXIT_MAX_DISTANCE = 5*sma[5]
 
 ### Kontrollpunkte für frühzeitigen Abbruch (in Jahren) ###
-CHECKPOINT_YEARS = [50, 500]
+CHECKPOINT_YEARS = list(range(300, 5000, 100))
 
 
 def _checkpoint_index(year):
@@ -244,7 +250,8 @@ def simulation(sim):
         actual_steps = i + 1
         break
 
-    print("The time is %5d years "% (t/(60*60*24*365.25)))
+    if i % 1000 == 0:
+      print("The time is %5d years "% (t/(60*60*24*365.25)))
 
   # Arrays auf die tatsächlich berechneten Schritte kürzen
   ecc = ecc[:actual_steps]
@@ -256,7 +263,7 @@ def simulation(sim):
   xyz_f = xyz_f[:actual_steps]
   xyz_moon = xyz_moon[:actual_steps]
 
-  # Abschluss-Check: Winkel, die bis hierhin noch nicht als gebrochen
+  # Abschluss-Check (nach 5000 Jahren): Winkel, die bis hierhin noch nicht als gebrochen
   # markiert wurden, final anhand der vollständigen (bzw. bis zum frühen
   # Abbruch vorhandenen) Zeitreihe prüfen
   end_year = times[actual_steps-1] / day_in_second / 365.25
@@ -269,19 +276,38 @@ def simulation(sim):
   for key, resonant in final_resonant.items():
     if not resonant and break_year[key] is None:
       break_year[key] = end_year
+      
+  early_stop = actual_steps < Nsteps   # True, wenn wegen "alle 3 gebrochen" früh abgebrochen wurde
 
-  return ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon, break_year
+  return ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon, break_year, end_year, early_stop
 
 
-def safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon, a, m):
-  output_dir = f'data_aufgabe1_auto/data_moon_a={a}'
-  os.makedirs(output_dir, exist_ok=True)
+def safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon,
+              a, m, break_year, end_year, early_stop, base_dir="critical_mass_search"):
 
-  np.savetxt(f'{output_dir}/ecc_moon_a={a}_m={m}.txt', ecc)
-  np.savetxt(f'{output_dir}/sma_moon_a={a}_m={m}.txt', sma)
-  np.savetxt(f'{output_dir}/inc_moon_a={a}_m={m}.txt', inc)
-  np.savetxt(f'{output_dir}/orbital_node_moon_a={a}_m={m}.txt', orbital_node)
-  np.savetxt(f'{output_dir}/omega_moon_a={a}_m={m}.txt', omega)
-  np.savetxt(f'{output_dir}/l_moon_a={a}_m={m}.txt', longitude)
-  np.savetxt(f'{output_dir}/xyz_f_with_moon_a={a}_m={m}.txt', xyz_f)
-  np.savetxt(f'{output_dir}/xyz_moon_a={a}_m={m}.txt', xyz_moon)
+  windows = functions.compute_save_windows(break_year, end_year, early_stop)
+
+  actual_steps = ecc.shape[0]
+  years = times[:actual_steps] / day_in_second / 365.25
+
+  mask = np.zeros(actual_steps, dtype=bool)
+  for start, stop in windows:
+    mask |= (years >= start) & (years <= stop)
+
+  years_col = years[mask].reshape(-1, 1).astype(np.float32)
+
+  def with_years(arr):
+    return np.hstack([years_col, arr[mask].astype(np.float32)]).astype(np.float32)
+
+  # simulation_data/a={a}/m={m}/  -- wird automatisch angelegt
+  output_dir = Path(base_dir) / "simulation_data" / f"a={a}" / f"m={m}"
+  output_dir.mkdir(parents=True, exist_ok=True)
+
+  np.save(output_dir / "ecc.npy", with_years(ecc))
+  np.save(output_dir / "sma.npy", with_years(sma))
+  np.save(output_dir / "inc.npy", with_years(inc))
+  np.save(output_dir / "orbital_node.npy", with_years(orbital_node))
+  np.save(output_dir / "omega.npy", with_years(omega))
+  np.save(output_dir / "l.npy", with_years(longitude))
+  np.save(output_dir / "xyz_f.npy", with_years(xyz_f))
+  np.save(output_dir / "xyz_moon.npy", with_years(xyz_moon))

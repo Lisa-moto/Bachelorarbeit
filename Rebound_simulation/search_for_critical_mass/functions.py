@@ -85,7 +85,7 @@ def init_instability_file(path):
     return f
 
 
-def _fmt(x, decimals=5):
+def _fmt(x, decimals=9):
     """Formatiert einen Float als String mit fester Nachkommastellenzahl,
     oder gibt 'None' zurück, falls x None ist."""
     return "None" if x is None else f"{x:.{decimals}f}"
@@ -119,3 +119,41 @@ def build_mass_array(discrete_low=(1e-9, 1e-8, 1e-7),
     n_log_points = int(round(n_decades * points_per_decade)) + 1
     log_part = np.logspace(np.log10(log_start), np.log10(log_end), n_log_points)
     return np.concatenate([np.array(discrete_low), log_part])
+
+### für die Bestimmung der zu speichernden Zeitfenster ###
+
+def compute_save_windows(break_year, end_year, early_stop, window_years=300):
+    """
+    Bestimmt die zu speichernden Zeitfenster (in Jahren), gemergt und ohne
+    Überlappung.
+
+    - Für jeden Winkel, der VOR Simulationsende gebrochen ist (break_year < end_year):
+      Fenster [break_year - window_years, break_year].
+    - Zusätzlich das Fenster [end_year - window_years, end_year], AUSSER die
+      Simulation wurde früh abgebrochen, weil alle drei Winkel bereits
+      gebrochen waren (early_stop=True).
+    """
+    windows = []
+    for key in ("psi1", "psi2", "psi3"):
+        y = break_year.get(key)
+        if y is not None and y < end_year:
+            start = max(0.0, y - window_years)
+            windows.append((start, y))
+
+    if not early_stop:
+        start = max(0.0, end_year - window_years)
+        windows.append((start, end_year))
+
+    if not windows:
+        return []
+
+    windows.sort(key=lambda w: w[0])
+    merged = [windows[0]]
+    for start, stop in windows[1:]:
+        last_start, last_stop = merged[-1]
+        if start <= last_stop:
+            merged[-1] = (last_start, max(last_stop, stop))
+        else:
+            merged.append((start, stop))
+
+    return merged
