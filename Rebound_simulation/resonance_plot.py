@@ -2,8 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-m_moon_short = 0.001  # mass of the moon relative to planet f
+m_moon_short = 0.003  # mass of the moon relative to planet f
 a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
+m_short = 1.259  # mass of planet f relative to its original mass
+plot_mode = 'psi' # plot_type can be 'all' or 'psi' for plotting only the psi angles
 
 ##########################################################################################
 # load data
@@ -12,21 +14,29 @@ a_moon_short = 0.2  # semi-major axis of the moon relative to planet f
 here = os.path.dirname(__file__)
 
 # files without moon
-f_sma = os.path.join(here, 'data_sim/sma_planets.txt')
-f_longitude = os.path.join(here, 'data_sim/l_planets.txt')
-f_omega = os.path.join(here, 'data_sim/omega_planets.txt')
-f_node = os.path.join(here, 'data_sim/orbital_node_planets.txt')
-f_ecc = os.path.join(here, 'data_sim/ecc_planets.txt')
-f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
+# f_sma = os.path.join(here, 'data_sim/sma_planets.txt')
+# f_longitude = os.path.join(here, 'data_sim/l_planets.txt')
+# f_omega = os.path.join(here, 'data_sim/omega_planets.txt')
+# f_node = os.path.join(here, 'data_sim/orbital_node_planets.txt')
+# f_ecc = os.path.join(here, 'data_sim/ecc_planets.txt')
+# f_inc = os.path.join(here, 'data_sim/inc_planets.txt')
 
 
-# # filenames with moon
-# f_sma = os.path.join(here, f'data_with_moon_a={a_moon_short}/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_longitude = os.path.join(here, f'data_with_moon_a={a_moon_short}/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_omega = os.path.join(here, f'data_with_moon_a={a_moon_short}/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_node = os.path.join(here, f'data_with_moon_a={a_moon_short}/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_ecc = os.path.join(here, f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
-# f_inc = os.path.join(here, f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+# filenames with moon
+f_sma = os.path.join(here, f'data_with_moon_a={a_moon_short}/sma_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_longitude = os.path.join(here, f'data_with_moon_a={a_moon_short}/l_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_omega = os.path.join(here, f'data_with_moon_a={a_moon_short}/omega_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_node = os.path.join(here, f'data_with_moon_a={a_moon_short}/orbital_node_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_ecc = os.path.join(here, f'data_with_moon_a={a_moon_short}/ecc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+f_inc = os.path.join(here, f'data_with_moon_a={a_moon_short}/inc_with_moon_a={a_moon_short}_m={m_moon_short}.txt')
+
+# filenames with heavier planet f
+# f_sma = os.path.join(here, f'data_heavy_planet/sma_planets_m={m_short:.3f}.txt')
+# f_longitude = os.path.join(here, f'data_heavy_planet/l_planets_m={m_short:.3f}.txt')
+# f_omega = os.path.join(here, f'data_heavy_planet/omega_planets_m={m_short:.3f}.txt')
+# f_node = os.path.join(here, f'data_heavy_planet/orbital_node_planets_m={m_short:.3f}.txt')
+# f_ecc = os.path.join(here, f'data_heavy_planet/ecc_planets_m={m_short:.3f}.txt')
+# f_inc = os.path.join(here, f'data_heavy_planet/inc_planets_m={m_short:.3f}.txt')
 
 """
 # filenames with perpendicular moon
@@ -65,7 +75,7 @@ def rad_to_deg_0_360(arr):
   a = np.mod(arr, 2*np.pi)  # now in [0, 2pi)
   return a * 180.0 / np.pi
 
-def resonant_angles(longitude):
+def resonant_angles_all(longitude):
   # return time series arrays (length n_steps) for each resonant angle
 
   # Leleu equations
@@ -104,50 +114,122 @@ def resonant_angles(longitude):
 
   return phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3
 
+# Calculate resonant angles
+def resonant_angles_psi(longitude):
+  # return time series arrays (length n_steps) for each resonant angle
+
+  psi1 = longitude[:, 1] - 4 * longitude[:, 2] + 3 * longitude[:, 3]
+  psi2 = 2 * longitude[:, 2] - 5 * longitude[:, 3] + 3 * longitude[:, 4]
+  psi3 = longitude[:, 3] - 3 * longitude[:, 4] + 2 * longitude[:, 5]
+
+  psi1 = rad_to_deg_0_360(psi1)
+  psi2 = rad_to_deg_0_360(psi2)
+  psi3 = rad_to_deg_0_360(psi3)
+
+  return psi1, psi2, psi3
+
+
+
+def plot_all():
+    # compute resonant angles
+    phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3 = resonant_angles_all(lamb)
+    angles = np.array([phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3])
+
+    # number of angles and timesteps
+    n_angles = angles.shape[0]
+
+    # Create a 2x4 grid and plot first n_to_plot angles
+    fig, axes = plt.subplots(4, 2, figsize=(12, 10), sharex=True)
+    axes = axes.flatten()
+
+    for ax in axes:
+        ax.set_ylim(0, 360)
+        ax.grid(alpha=0.25)
+
+    for i in range(5):
+        ax = axes[i]
+        ax.plot(time_years, angles[i], lw=0.3)
+        ax.set_title(f'$\phi_{i}$', size=16)
+        ax.set_ylabel('angle [deg]',size=15)
+
+    for i in range(3):
+        ax = axes[i+5]
+        ax.plot(time_years, angles[i+5], lw=0.8)
+        ax.set_title(f'$\psi_{i+1}$', size=16)
+        ax.set_ylabel('angle [deg]',size=15)
+
+    # turn off any unused axes
+    for j in range(n_angles, len(axes)):
+        axes[j].axis('off')
+
+    # label shared x-axis on bottom-left subplot (index 6 for our layout)
+    axes[6].set_xlabel('time [years]', size=15)
+
+    plt.tight_layout()
+    return fig
+    
+  
+def plot_psi():
+  # compute resonant angles
+  psi1, psi2, psi3 = resonant_angles_psi(lamb)
+  angles = np.array([psi1, psi2, psi3])
+  
+  n_angles = angles.shape[0]
+  
+  #creat a 3x1 grid and plot the psi angles
+  fig, axes = plt.subplots(3, 1, figsize=(12,10), sharex=True)
+  axes = axes.flatten()
+  
+  for ax in axes:
+    ax.set_ylim(0, 360)
+    ax.grid(alpha=0.25)
+    
+  for i in range(n_angles):
+    ax = axes[i]
+    ax.plot(time_years, angles[i], lw=0.8)
+    ax.set_title(f'$\psi_{i+1}$', size=16)
+    ax.set_ylabel('angle [deg]',size=15)
+    
+  plt.xlabel('time [years]', size=15)
+  
+  plt.tight_layout()
+  return fig
 
 nsteps, nplanets = sma.shape
 # time axis from 0 to 500 years
 time_years = np.linspace(0, 500, nsteps)
 
-# compute resonant angles
-phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3 = resonant_angles(lamb)
-angles = np.array([phi0, phi1, phi2, phi3, phi4, psi1, psi2, psi3])
+if plot_mode == 'all':
+    fig = plot_all()
+elif plot_mode == 'psi':
+    fig = plot_psi()
+else:
+    raise ValueError(f"plot_mode must be 'all' or 'psi', got '{plot_mode}'")
 
-# number of angles and timesteps
-n_angles = angles.shape[0]
+# out = os.path.join(here, f'plots/{plot_mode}_resonances.png')
+# #out = os.path.join(here, f'plots_perpendicular/m={m_moon_short}/all_resonances_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.png')
+# plt.savefig(out, dpi=300, bbox_inches='tight')
+# print(f"Saved {out}")
+# plt.close()
 
-# Create a 2x4 grid and plot first n_to_plot angles
-fig, axes = plt.subplots(4, 2, figsize=(12, 10), sharex=True)
-axes = axes.flatten()
+##########################################################################################
+# Save plot for moon around planet f
+##########################################################################################
+output_dir = f'plots_a={a_moon_short}/plots_m={m_moon_short}'
+os.makedirs(output_dir, exist_ok=True)
 
-for ax in axes:
-  ax.set_ylim(0, 360)
-  ax.grid(alpha=0.25)
-
-for i in range(5):
-  ax = axes[i]
-  ax.plot(time_years, angles[i], lw=0.3)
-  ax.set_title(f'$\phi_{i}$', size=16)
-  ax.set_ylabel('angle [deg]',size=15)
-
-for i in range(3):
-  ax = axes[i+5]
-  ax.plot(time_years, angles[i+5], lw=0.8)
-  ax.set_title(f'$\psi_{i+1}$', size=16)
-  ax.set_ylabel('angle [deg]',size=15)
-
-# turn off any unused axes
-for j in range(n_angles, len(axes)):
-  axes[j].axis('off')
-
-# label shared x-axis on bottom-left subplot (index 6 for our layout)
-axes[6].set_xlabel('time [years]', size=15)
-
-plt.tight_layout()
-out = os.path.join(here, 'plots/all_resonances.png')
-#out = os.path.join(here, f'plots_a={a_moon_short}/plots_m={m_moon_short}/all_resonances_a={a_moon_short}_m={m_moon_short}.png')
-#out = os.path.join(here, f'plots_perpendicular/m={m_moon_short}/all_resonances_perpendicular_moon_a={a_moon_short}_m={m_moon_short}.png')
-plt.savefig(out, dpi=300, bbox_inches='tight')
-print(f"Saved {out}")
+filename = f'{plot_mode}_resonances_a={a_moon_short}_m={m_moon_short}.png'
+plt.savefig(os.path.join(output_dir, filename), dpi=300, bbox_inches='tight')
+print(f"Saved {filename}")
 plt.close()
 
+##########################################################################################
+# Save plot for heavier planet f
+##########################################################################################
+# output_dir = f'plots_heavy_planet/plots_m={m_short:.3f}'
+# os.makedirs(output_dir, exist_ok=True)
+
+# filename = f'{plot_mode}_resonances_m={m_short:.3f}.png'
+# plt.savefig(os.path.join(output_dir, filename), dpi=300, bbox_inches='tight')
+# print(f"Saved {filename}")
+# plt.close()
