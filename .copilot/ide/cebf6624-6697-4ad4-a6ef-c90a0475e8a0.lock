@@ -1,12 +1,12 @@
 {
-  "socketPath": "/tmp/mcp-QilOsr/mcp.sock",
+  "socketPath": "/tmp/mcp-hLObR2/mcp.sock",
   "scheme": "unix",
   "headers": {
-    "Authorization": "Nonce 14d400b0-bb93-4276-bb0e-c13dd3f1776e"
+    "Authorization": "Nonce 71146b84-2a13-43cc-b575-b209b22e6a06"
   },
-  "pid": 126457,
+  "pid": 1004164,
   "ideName": "Visual Studio Code",
-  "timestamp": 1790249268702,
+  "timestamp": 1790685855544,
   "workspaceFolders": [
     "/home/tu/tu_tu/tu_zxown31/Rebound_simulation"
   ],
