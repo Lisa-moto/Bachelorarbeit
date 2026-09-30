@@ -72,7 +72,7 @@ def is_laplace_resonant(phi_deg, threshold_deg=179.0, return_diagnostics=False):
 def init_resonance_file(path):
     """Öffnet die Resonanz-Ausgabedatei neu und schreibt den Header."""
     f = open(path, 'w')
-    f.write("sma,psi1,psi1_break_year,psi2,psi2_break_year,psi3,psi3_break_year\n")
+    f.write("sma,psi1_break_mass,psi1_break_year,psi2_break_mass,psi2_break_year,psi3_break_mass,psi3_break_year\n")
     f.flush()
     return f
 

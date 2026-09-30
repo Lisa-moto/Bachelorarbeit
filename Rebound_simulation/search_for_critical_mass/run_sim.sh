@@ -9,8 +9,8 @@
 #SBATCH --error=logs/sim_%A_%a.err
 
 cd "$SLURM_SUBMIT_DIR"
-mkdir -p logs
 
-module load devel/python/3.11
+module load devel/miniforge
+conda activate main
 
 python main_sim.py "${SLURM_ARRAY_TASK_ID}"

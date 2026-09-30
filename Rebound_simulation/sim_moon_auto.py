@@ -131,7 +131,7 @@ def setupSimulation(a, m):
   sim.G = 6.6743e-11
 
   # moon parameters
-  r_moon = 0.0005*Rh[4]  # radius of the moon
+  r_moon = 0.0001*Rh[4]  # radius of the moon
   inc_moon = incl[4] # inclination of the moon's orbit equal to the inclination of planet f
   a_moon = a*Rh[4]
   moon_mass = m*masses[5]
