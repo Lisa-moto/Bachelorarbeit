@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=toi178_moon
 #SBATCH --partition=compute
-#SBATCH --time=48:00:00
+#SBATCH --time=14-00:00:00
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=4gb
 #SBATCH --array=0-199

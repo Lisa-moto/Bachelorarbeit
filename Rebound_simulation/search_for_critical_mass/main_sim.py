@@ -31,10 +31,10 @@ readme_path = BASE_DIR / "README_columns.txt"
 if not readme_path.exists():
     readme_path.write_text(
         "Spaltenreihenfolge in den .npy-Dateien (Datentyp: float32):\n\n"
-        "ecc.npy, sma.npy, inc.npy, orbital_node.npy, omega.npy, l.npy:\n"
+        "ecc.npy, sma.npy in AU, inc.npy in Grad, orbital_node.npy in rad, omega.npy in rad, l.npy in rad:\n"
         "  Spalte 0: year\n"
         "  Spalte 1-7: b, c, d, e, f, g, moon\n\n"
-        "xyz_f.npy, xyz_moon.npy:\n"
+        "xyz_f.npy in Meter, xyz_moon.npy in Meter:\n"
         "  Spalte 0: year\n"
         "  Spalte 1-3: x, y, z\n"
     )

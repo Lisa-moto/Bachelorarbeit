@@ -141,12 +141,12 @@ def setupSimulation(a, m):
 
   TOI178 = rebound.Particle(m=masses[0],r=Rstar)
   sim.add(TOI178)
-  TOI178_b = rebound.Particle(simulation=sim,primary=TOI178,m=masses[1], P=P[0], l=lambd[0],r=0.1*Rh[0],inc=incl[0])
-  TOI178_c = rebound.Particle(simulation=sim,primary=TOI178,m=masses[2], P=P[1], l=lambd[1],r=0.1*Rh[1],inc=incl[1])
-  TOI178_d = rebound.Particle(simulation=sim,primary=TOI178,m=masses[3], P=P[2], l=lambd[2],r=0.1*Rh[2],inc=incl[2])
-  TOI178_e = rebound.Particle(simulation=sim,primary=TOI178,m=masses[4], P=P[3], l=lambd[3],r=0.1*Rh[3],inc=incl[3])
-  TOI178_f = rebound.Particle(simulation=sim,primary=TOI178,m=masses[5], P=P[4], l=lambd[4],r=0.1*Rh[4],inc=incl[4])
-  TOI178_g = rebound.Particle(simulation=sim,primary=TOI178,m=masses[6], P=P[5], l=lambd[5],r=0.1*Rh[5],inc=incl[5])
+  TOI178_b = rebound.Particle(simulation=sim,primary=TOI178,m=masses[1], P=P[0], l=lambd[0],r=R[0],inc=incl[0])
+  TOI178_c = rebound.Particle(simulation=sim,primary=TOI178,m=masses[2], P=P[1], l=lambd[1],r=R[1],inc=incl[1])
+  TOI178_d = rebound.Particle(simulation=sim,primary=TOI178,m=masses[3], P=P[2], l=lambd[2],r=R[2],inc=incl[2])
+  TOI178_e = rebound.Particle(simulation=sim,primary=TOI178,m=masses[4], P=P[3], l=lambd[3],r=R[3],inc=incl[3])
+  TOI178_f = rebound.Particle(simulation=sim,primary=TOI178,m=masses[5], P=P[4], l=lambd[4],r=R[4],inc=incl[4])
+  TOI178_g = rebound.Particle(simulation=sim,primary=TOI178,m=masses[6], P=P[5], l=lambd[5],r=R[5],inc=incl[5])
   
   sim.add(TOI178_b)
   sim.add(TOI178_c)
@@ -219,9 +219,13 @@ def simulation(sim):
     xyz_moon[i, 1] = ps[idx_moon].y
     xyz_moon[i, 2] = ps[idx_moon].z
 
-    o = sim.particles[idx_moon].orbit(primary=sim.particles[idx_f])
+    o = ps[idx_moon].orbit(primary=ps[idx_f])
     ecc[i, idx_moon-1] = o.e
     sma[i, idx_moon-1] = o.a / AU
+    inc[i, idx_moon-1] = np.rad2deg(o.inc)
+    omega[i, idx_moon-1] = o.pomega
+    longitude[i, idx_moon-1] = o.l
+    orbital_node[i, idx_moon-1] = o.Omega
 
     dx = ps[idx_moon].x - ps[idx_f].x
     dy = ps[idx_moon].y - ps[idx_f].y

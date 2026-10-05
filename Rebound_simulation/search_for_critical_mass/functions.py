@@ -32,7 +32,7 @@ def is_laplace_resonant(phi_deg, threshold_deg=179.0, return_diagnostics=False):
         z.B. [0,360) oder (-180,180]).
     threshold_deg : float
         Amplituden-Grenze in Grad, unterhalb derer Libration angenommen wird.
-        Standard 177° statt genau 180°, um numerisches Rauschen an der
+        Standard 179.0° statt genau 180°, um numerisches Rauschen an der
         Separatrix nicht als "gerade noch resonant" fehlzuinterpretieren.
     return_diagnostics : bool
         Wenn True, zusätzlich ein dict mit Amplitude, zirkulärem Mittelwert
@@ -136,7 +136,7 @@ def compute_save_windows(break_year, end_year, early_stop, window_years=300):
     windows = []
     for key in ("psi1", "psi2", "psi3"):
         y = break_year.get(key)
-        if y is not None and y < end_year:
+        if y is not None and y <= end_year:
             start = max(0.0, y - window_years)
             windows.append((start, y))
 
