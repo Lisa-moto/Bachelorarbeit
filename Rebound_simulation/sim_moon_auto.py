@@ -254,7 +254,7 @@ def simulation(sim):
         actual_steps = i + 1
         break
 
-    if i % 1000 == 0:
+    if i % 10000 == 0:
       print("The time is %5d years "% (t/(60*60*24*365.25)))
 
   # Arrays auf die tatsächlich berechneten Schritte kürzen
@@ -303,15 +303,30 @@ def safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon,
   def with_years(arr):
     return np.hstack([years_col, arr[mask].astype(np.float32)]).astype(np.float32)
 
-  # simulation_data/a={a}/m={m}/  -- wird automatisch angelegt
-  output_dir = Path(base_dir) / "simulation_data" / f"a={a}" / f"m={m}"
+  # simulation_data/a=0.100000/a=0.100000_m=1.000000e-05.npz
+  tag = f"a={a:.6f}_m={m:.6e}"
+  output_dir = Path(base_dir) / "simulation_data" / f"a={a:.6f}"
   output_dir.mkdir(parents=True, exist_ok=True)
 
-  np.save(output_dir / "ecc.npy", with_years(ecc))
+  tmp_path = output_dir / f"{tag}.tmp.npz"
+  np.savez(
+    tmp_path,
+    ecc=with_years(ecc),
+    sma=with_years(sma),
+    inc=with_years(inc),
+    orbital_node=with_years(orbital_node),
+    omega=with_years(omega),
+    l=with_years(longitude),
+    xyz_f=with_years(xyz_f),
+    xyz_moon=with_years(xyz_moon),
+  )
+  os.replace(tmp_path, output_dir / f"{tag}.npz")
+
+  """ np.save(output_dir / "ecc.npy", with_years(ecc))
   np.save(output_dir / "sma.npy", with_years(sma))
   np.save(output_dir / "inc.npy", with_years(inc))
   np.save(output_dir / "orbital_node.npy", with_years(orbital_node))
   np.save(output_dir / "omega.npy", with_years(omega))
   np.save(output_dir / "l.npy", with_years(longitude))
   np.save(output_dir / "xyz_f.npy", with_years(xyz_f))
-  np.save(output_dir / "xyz_moon.npy", with_years(xyz_moon))
+  np.save(output_dir / "xyz_moon.npy", with_years(xyz_moon)) """

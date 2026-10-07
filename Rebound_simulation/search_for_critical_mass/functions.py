@@ -67,22 +67,36 @@ def is_laplace_resonant(phi_deg, threshold_deg=179.0, return_diagnostics=False):
     return is_resonant
 
 
-### für die CSV-Ausgabe der Simulationsergebnisse ###
+### für die CSV-Ausgabe der Simulationsergebnisse (irrelevant) ###
 
-def init_resonance_file(path):
-    """Öffnet die Resonanz-Ausgabedatei neu und schreibt den Header."""
-    f = open(path, 'w')
-    f.write("sma,psi1_break_mass,psi1_break_year,psi2_break_mass,psi2_break_year,psi3_break_mass,psi3_break_year\n")
-    f.flush()
-    return f
+# def init_resonance_file(path):
+#     """Öffnet die Resonanz-Ausgabedatei neu und schreibt den Header."""
+#     f = open(path, 'w')
+#     f.write("sma,psi1_break_mass,psi1_break_year,psi2_break_mass,psi2_break_year,psi3_break_mass,psi3_break_year\n")
+#     f.flush()
+#     return f
 
 
-def init_instability_file(path):
-    """Öffnet die Instabilitäts-Ausgabedatei neu und schreibt den Header."""
-    f = open(path, 'w')
-    f.write("reason,year,sma,mass\n")
-    f.flush()
-    return f
+# def init_instability_file(path):
+#     """Öffnet die Instabilitäts-Ausgabedatei neu und schreibt den Header."""
+#     f = open(path, 'w')
+#     f.write("reason,year,sma,mass\n")
+#     f.flush()
+#     return f
+    
+# def write_resonance_row(f, sma, psi1_mass, psi1_year, psi2_mass, psi2_year, psi3_mass, psi3_year):
+#     f.write(
+#         f"{_fmt(sma, 3)},"
+#         f"{_fmt(psi1_mass)},{_fmt(psi1_year, 2)},"
+#         f"{_fmt(psi2_mass)},{_fmt(psi2_year, 2)},"
+#         f"{_fmt(psi3_mass)},{_fmt(psi3_year, 2)}\n"
+#     )
+#     f.flush()
+
+
+# def write_instability_row(f, reason, year, sma, mass):
+#     f.write(f"{reason},{year:.4f},{_fmt(sma, 3)},{_fmt(mass)}\n")
+#     f.flush()
 
 
 def _fmt(x, decimals=9):
@@ -90,20 +104,8 @@ def _fmt(x, decimals=9):
     oder gibt 'None' zurück, falls x None ist."""
     return "None" if x is None else f"{x:.{decimals}f}"
 
-
-def write_resonance_row(f, sma, psi1_mass, psi1_year, psi2_mass, psi2_year, psi3_mass, psi3_year):
-    f.write(
-        f"{_fmt(sma, 3)},"
-        f"{_fmt(psi1_mass)},{_fmt(psi1_year, 2)},"
-        f"{_fmt(psi2_mass)},{_fmt(psi2_year, 2)},"
-        f"{_fmt(psi3_mass)},{_fmt(psi3_year, 2)}\n"
-    )
-    f.flush()
-
-
-def write_instability_row(f, reason, year, sma, mass):
-    f.write(f"{reason},{year:.4f},{_fmt(sma, 3)},{_fmt(mass)}\n")
-    f.flush()
+def _fmt_mass(m):
+    return "None" if m is None else f"{m:.6e}"
 
 
 ### für die Massen-Array-Berechnung im Resonanz-Suchlauf ###
@@ -157,3 +159,74 @@ def compute_save_windows(break_year, end_year, early_stop, window_years=300):
             merged.append((start, stop))
 
     return merged
+
+# neue Funktionen für Fortschritt-Log zur Ausfallsicherheit
+
+def atomic_write_text(path, text):
+    path = str(path)
+    tmp = f"{path}.tmp.{os.getpid()}"
+    with open(tmp, "w") as f:
+        f.write(text)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
+
+
+def append_log(path, fields):
+    """Hängt genau eine Zeile an und erzwingt das Schreiben auf die Platte."""
+    with open(path, "a") as f:
+        f.write(";".join(fields) + "\n")
+        f.flush()
+        os.fsync(f.fileno())
+
+
+def load_log(path, masses):
+    """Liest das Log. Unvollständige/kaputte Zeilen am Ende (Abbruch beim
+    Schreiben) werden verworfen. Gibt eine Liste von Feldlisten zurück,
+    Eintrag k gehört zu masses[k]."""
+    entries = []
+    if os.path.exists(path):
+        with open(path) as f:
+            raw = f.read()
+        # letztes Element von split ist entweder "" oder eine halbe Zeile -> weg
+        for k, line in enumerate(raw.split("\n")[:-1]):
+            p = line.split(";")
+            if len(p) != 6 or p[0] != str(k):
+                break
+            if k >= len(masses) or not np.isclose(float(p[1]), masses[k], rtol=1e-9, atol=0):
+                raise RuntimeError(f"{path}: Zeile {k} passt nicht zum aktuellen "
+                                   f"Massen-Array. Bitte prüfen/löschen.")
+            entries.append(p)
+        # Datei bereinigt neu schreiben, damit das nächste Anhängen sauber ist
+        atomic_write_text(path, "".join(";".join(p) + "\n" for p in entries))
+    return entries
+
+
+def first_breaks(entries):
+    """Pro psi die erste Masse mit gebrochener Resonanz: [(mass, year) oder None]*3."""
+    result = [None, None, None]
+    for p in entries:
+        if p[2] != "ok":
+            continue
+        for n in range(3):
+            if result[n] is None and p[3 + n] != "None":
+                result[n] = (float(p[1]), float(p[3 + n]))
+    return result
+
+
+def write_outputs_from_log(entries, sma, resonance_path, instability_path):
+    """Erzeugt beide CSVs komplett aus dem Log (keine Duplikate möglich)."""
+    b = first_breaks(entries)
+    cols = []
+    for x in b:
+        cols += [_fmt_mass(None if x is None else x[0]), _fmt(None if x is None else x[1], 2)]
+    atomic_write_text(resonance_path,
+        "sma,psi1_break_mass,psi1_break_year,psi2_break_mass,psi2_break_year,"
+        "psi3_break_mass,psi3_break_year\n" + f"{_fmt(sma, 6)}," + ",".join(cols) + "\n")
+
+    lines = ["reason,year,sma,mass\n"]
+    for p in entries:
+        if p[2] == "unstable":
+            reason = p[3].replace(",", ";")
+            lines.append(f"{reason},{float(p[4]):.4f},{_fmt(sma, 6)},{_fmt_mass(float(p[1]))}\n")
+    atomic_write_text(instability_path, "".join(lines))
