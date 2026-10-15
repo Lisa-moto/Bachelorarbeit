@@ -8,10 +8,13 @@
 #SBATCH --requeue
 #SBATCH --output=logs/sim_%A_%a.out
 #SBATCH --error=logs/sim_%A_%a.err
+#SBATCH --mail-type=FAIL,TIME_LIMIT,REQUEUE,END
+#SBATCH --mail-user=lisa-marie.imhof@student.uni-tuebingen.de
 
 cd "$SLURM_SUBMIT_DIR"
 
 module load devel/miniforge
 conda activate main
 
+export OMP_NUM_THREADS=1
 python -u main_sim.py "${SLURM_ARRAY_TASK_ID}"

@@ -1,0 +1,2 @@
+2026-10-15T10:30:51.580Z [INFO] Native runtime logging initialized
+2026-10-15T10:30:51.631Z [WARNING] [rust:copilot_runtime::protocol::jsonrpc::standalone::transport] Unable to locate runtime-bundled skills beside the native runtime

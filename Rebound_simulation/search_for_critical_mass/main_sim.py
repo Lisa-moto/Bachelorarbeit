@@ -64,10 +64,13 @@ if entries:
 
 for idx in range(len(entries), len(masses_to_test)):
     if all(b is not None for b in functions.first_breaks(entries)):
+        print(f"a_index={a_index} (a={i}): alle Resonanzen gebrochen, fertig.")
         break  # alle drei Resonanzen gebrochen, fertig
 
     j = masses_to_test[idx]
     sim = sim_moon_auto.setupSimulation(a=i, m=j)
+    
+    print(f'Simulation for a={i:.6f}, m={j:.6e} (index {idx+1}/{len(masses_to_test)})')
 
     try:
         ecc, sma, inc, omega, longitude, orbital_node, xyz_f, xyz_moon, break_year, end_year, early_stop = \
