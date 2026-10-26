@@ -1,2 +1,3 @@
 2026-10-15T10:30:51.580Z [INFO] Native runtime logging initialized
 2026-10-15T10:30:51.631Z [WARNING] [rust:copilot_runtime::protocol::jsonrpc::standalone::transport] Unable to locate runtime-bundled skills beside the native runtime
+2026-10-15T16:55:11.913Z [WARNING] [rust:copilot_runtime::protocol::jsonrpc::standalone] Standalone JSON-RPC one-way host call failed {"error":"Standalone server does not support host call 'lifecycle_server_shutdown_finalize'"}
