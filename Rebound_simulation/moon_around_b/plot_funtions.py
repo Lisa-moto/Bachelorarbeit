@@ -63,7 +63,7 @@ def make_resonant_angle_plot(psi1, psi2, psi3, a, m):
     axes[2].set_xlabel('time (years)', size=15)
     
     # title
-    fig.suptitle(f'Resonant Angles with Moon around Planet b; $a={a}\\,R_{{\\text{{Hill,f}}}}$, $m={m}\\,m_{{\\text{{f}}}}$', size=18)
+    fig.suptitle(f'Resonant Angles with Moon around Planet b; $a={a}\\,R_{{\\text{{Hill,b}}}}$, $m={m}\\,m_{{\\text{{b}}}}$', size=18)
 
     output_dir = f'plots_moon_around_b/a={a}'
     os.makedirs(output_dir, exist_ok=True)
@@ -100,7 +100,7 @@ def make_sma_ecc_plot(sma, ecc, a, m):
     axes[1].grid()
     axes[1].legend(fontsize=12)
     
-    plt.suptitle(f'Moon around Planet b; $a={a}\\,R_{{\\text{{Hill,f}}}}$, $m={m}\\,m_{{\\text{{f}}}}$', fontsize=18)
+    plt.suptitle(f'Moon around Planet b; $a={a}\\,R_{{\\text{{Hill,b}}}}$, $m={m}\\,m_{{\\text{{b}}}}$', fontsize=18)
 
     output_dir = f'plots_moon_around_b/a={a}'
     os.makedirs(output_dir, exist_ok=True)

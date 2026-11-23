@@ -2,7 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import rebound
 import os
+import time
+import resource
 
+
+t0 = time.time()
 
 # constants
 M_E=5.972e24
@@ -95,8 +99,8 @@ incl[5] = np.deg2rad(0.523)
 
 # moon parameters
 host_planet_index = 0  # b=0; c=1; d=2; e=3; f=4; g=5
-a_moon = 0.2*Rh[host_planet_index]    # semi-major axis of the moon around planet f
-moon_mass = 0.003*masses[host_planet_index+1]  # for mass, add 1 to planet_index
+a_moon = 0.2*Rh[host_planet_index]    # semi-major axis of the moon
+moon_mass = 0.005*masses[host_planet_index+1]  # for mass, add 1 to planet_index
 r_moon = 0.0001*Rh[host_planet_index]  # radius of the moon
 inc_moon = incl[host_planet_index]  # inclination of the moon's orbit; same as inclination of host planet
 a_moon_short = a_moon/Rh[host_planet_index]
@@ -234,3 +238,22 @@ def safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_host_planet, xy
   np.savetxt(f'{output_dir}/xyz_moon_a={a}_m={m}.txt', xyz_moon)
 
 safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_host_planet, xyz_moon, a=a_moon_short, m=m_moon_short)
+
+t1 = time.time()
+print(f"Laufzeit: {(t1 - t0)/60:.2f} Minuten")
+
+# Spitzenspeicherverbrauch (Peak RSS) des Prozesses seit Start
+peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+print(f"Peak-Speicherverbrauch: {peak_kb / 1024:.1f} MB")
+
+"""
+für m=0.001 und a=0.4
+Laufzeit: 4.51 Minuten
+Peak-Speicherverbrauch: 68.0 MB
+"""
+
+"""
+für m=0.005 und a=0.2
+Laufzeit: 27.56 Minuten
+Peak-Speicherverbrauch: 70.0 MB
+"""

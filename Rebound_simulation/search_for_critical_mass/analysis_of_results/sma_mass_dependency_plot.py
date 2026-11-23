@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import pandas as pd
 import sys
+from matplotlib.ticker import LogLocator, LogFormatterSciNotation, NullFormatter
 
 parent_dir = Path(__file__).resolve().parents[1]
 if str(parent_dir) not in sys.path:
@@ -47,6 +48,7 @@ NPZ_KEYS = ("ecc", "sma", "inc", "orbital_node", "omega", "l",
 # -----------------------------------------------------------------------------
 
 df = pd.read_csv(BASE_DIR / "resonance_breaking_ALL.csv", na_values="None")
+df_ins = pd.read_csv(BASE_DIR / "instability_cases_ALL.csv")
 
 # -----------------------------------------------------------------------------
 # Plot
@@ -79,7 +81,7 @@ def plot_resonance_breaking(df, save_path=None, log_y=True):
         ax.scatter(
             sma[has_break], mass[has_break],
             s=18, marker=markers[angle], color=colors[angle],
-            alpha=0.8, label=labels[angle], linestyle="none",
+            alpha=0.8, label=labels[angle]
         )
 
         # Zusatzplot: Striche dort, wo kein Bruch auftritt
@@ -91,17 +93,39 @@ def plot_resonance_breaking(df, save_path=None, log_y=True):
     # Hauptplot formatieren
     if log_y:
         ax.set_yscale("log")
-    ax.set_ylabel("critical mass in $m_{\text{f}}$")
+
+        # Achsenbereich aus den Daten, mit etwas Rand
+        all_mass = np.concatenate([
+            df[f"{a}_break_mass"].values.astype(float) for a in ANGLES
+        ])
+        all_mass = all_mass[np.isfinite(all_mass) & (all_mass > 0)]
+        if all_mass.size:
+            ax.set_ylim(all_mass.min() / 1.5, all_mass.max() * 1.5)
+
+        # Major-Ticks: jede Dekade beschriftet
+        ax.yaxis.set_major_locator(LogLocator(base=10, numticks=20))
+        ax.yaxis.set_major_formatter(LogFormatterSciNotation(base=10))
+
+        # Minor-Ticks: 2,3,...,9 mal 10^k, mit Label
+        ax.yaxis.set_minor_locator(
+            LogLocator(base=10, subs=(2, 3, 4, 5, 6, 7), numticks=50)
+        )
+        ax.yaxis.set_minor_formatter(
+            LogFormatterSciNotation(base=10, labelOnlyBase=False,
+                                    minor_thresholds=(10, 10))
+        )
+        ax.tick_params(axis="y", which="minor", labelsize=7)
+    ax.set_ylabel(r"critical mass in $m_{\text{f}}$")
     ax.set_title("Resonance Breaking: Dependency on Semi Major Axis and Mass of the Moon")
     ax.grid(True, alpha=0.3)
-    ax.legend(title="Resonanzwinkel", loc="best")
+    ax.legend(title="Resonance Angles", loc="best")
     ax.tick_params(labelbottom=False)
 
     # Zusatzplot formatieren
     ax_none.set_yticks(range(len(ANGLES)))
     ax_none.set_yticklabels([labels[a] for a in ANGLES])
     ax_none.set_ylim(-0.7, len(ANGLES) - 0.3)
-    ax_none.set_xlabel("semi major axis in $R_{\text{Hill,f}}$")
+    ax_none.set_xlabel(r"semi major axis in $R_{\text{Hill,f}}$")
     ax_none.set_ylabel("no break", fontsize=9)
     ax_none.grid(True, axis="x", alpha=0.3)
 
@@ -111,3 +135,59 @@ def plot_resonance_breaking(df, save_path=None, log_y=True):
 
 
 fig, axes = plot_resonance_breaking(df, save_path="Plots_critical_mass/resonance_breaking_plot.png")
+
+
+def plot_instability_cases(df, save_path=None, log_y=True):
+    """
+    Scatterplot der instabilen Läufe: große Halbachse (sma) gegen Masse,
+    mit unterschiedlichen Markern je nach Instabilitätsgrund.
+    """
+    reason = df["reason"].astype(str).str.lower()
+
+    # Gruppen anhand des Grund-Strings (enthält "collision" bzw. "ejection")
+    groups = {
+        "collision": reason.str.contains("collision"),
+        "ejection":  reason.str.contains("ejection"),
+    }
+    # Alles, was keiner der beiden Gruppen zugeordnet werden kann
+    groups["other"] = ~(groups["collision"] | groups["ejection"])
+
+    style = {
+        "collision": dict(marker="o", color="tab:red",    label="Collision"),
+        "ejection":  dict(marker="^", color="tab:purple", label="Ejection"),
+        "other":     dict(marker="x", color="gray",       label="Other"),
+    }
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    for name, mask in groups.items():
+        if not mask.any():
+            continue
+        ax.scatter(
+            df.loc[mask, "sma"], df.loc[mask, "mass"],
+            s=18, alpha=0.7, **style[name],
+        )
+
+    if log_y:
+        ax.set_yscale("log")
+        mass = df["mass"].values.astype(float)
+        mass = mass[np.isfinite(mass) & (mass > 0)]
+        if mass.size:
+            ax.set_ylim(mass.min() / 1.5, mass.max() * 1.5)
+        ax.yaxis.set_major_locator(LogLocator(base=10, numticks=20))
+        ax.yaxis.set_major_formatter(LogFormatterSciNotation(base=10))
+
+    ax.set_xlabel(r"semi major axis in $R_{\text{Hill,f}}$")
+    ax.set_ylabel(r"mass in $m_{\text{f}}$")
+    ax.set_title("Unstable Cases: Dependency on Semi Major Axis and Mass of the Moon")
+    ax.grid(True, alpha=0.3)
+    ax.legend(title="Reason", loc="best")
+
+    if save_path is not None:
+        fig.savefig(save_path, dpi=200, bbox_inches="tight")
+    return fig, ax
+
+
+fig, ax = plot_instability_cases(
+    df_ins, save_path="Plots_critical_mass/instability_cases_plot.png"
+)
