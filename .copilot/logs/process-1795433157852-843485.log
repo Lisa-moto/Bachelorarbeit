@@ -3,3 +3,4 @@
 2026-11-23T11:26:00.053Z [INFO] [rust:rt_managed_settings_ingest] [managedSettings] device MDM: no policy present on this device
 2026-11-23T11:26:00.053Z [INFO] [rust:rt_managed_settings_ingest] [managedSettings] server policy: none for this account (404: no configured policy) from https://github.com
 2026-11-23T11:26:00.053Z [INFO] [rust:rt_managed_settings_ingest] [managedSettings] effective policy resolved: source=none, bypassDisabled=false, serverFetchFailed=false, policyHelperConfigured=false, policyHelperAuthority=none, policyHelperFailed=false, policyHelperFailClosed=false, policyHelperContributedSandbox=false
+2026-11-23T14:50:31.616Z [WARNING] [rust:standalone_host::standalone] Standalone JSON-RPC one-way host call failed {"error":"Standalone server does not support host call 'lifecycle_server_shutdown_finalize'"}
