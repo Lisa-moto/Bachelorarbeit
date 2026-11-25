@@ -99,8 +99,8 @@ incl[5] = np.deg2rad(0.523)
 
 # moon parameters
 host_planet_index = 2  # b=0; c=1; d=2; e=3; f=4; g=5
-a_moon = 0.2*Rh[host_planet_index]    # semi-major axis of the moon
-moon_mass = 0.001*masses[host_planet_index+1]  # for mass, add 1 to planet_index
+a_moon = 0.12*Rh[host_planet_index]    # semi-major axis of the moon
+moon_mass = 0.0001*masses[host_planet_index+1]  # for mass, add 1 to planet_index
 r_moon = 0.0001*Rh[host_planet_index]  # radius of the moon
 inc_moon = incl[host_planet_index]  # inclination of the moon's orbit; same as inclination of host planet
 a_moon_short = a_moon/Rh[host_planet_index]
@@ -129,12 +129,12 @@ def setupSimulation(a=a_moon_short, m=m_moon_short):
 
   TOI178 = rebound.Particle(m=masses[0],r=Rstar)
   sim.add(TOI178)
-  TOI178_b = rebound.Particle(simulation=sim,primary=TOI178,m=masses[1], P=P[0], l=lambd[0],r=0.1*Rh[0],inc=incl[0])
-  TOI178_c = rebound.Particle(simulation=sim,primary=TOI178,m=masses[2], P=P[1], l=lambd[1],r=0.1*Rh[1],inc=incl[1])
-  TOI178_d = rebound.Particle(simulation=sim,primary=TOI178,m=masses[3], P=P[2], l=lambd[2],r=0.1*Rh[2],inc=incl[2])
-  TOI178_e = rebound.Particle(simulation=sim,primary=TOI178,m=masses[4], P=P[3], l=lambd[3],r=0.1*Rh[3],inc=incl[3])
-  TOI178_f = rebound.Particle(simulation=sim,primary=TOI178,m=masses[5], P=P[4], l=lambd[4],r=0.1*Rh[4],inc=incl[4])
-  TOI178_g = rebound.Particle(simulation=sim,primary=TOI178,m=masses[6], P=P[5], l=lambd[5],r=0.1*Rh[5],inc=incl[5])
+  TOI178_b = rebound.Particle(simulation=sim,primary=TOI178,m=masses[1], P=P[0], l=lambd[0],r=R[0],inc=incl[0])
+  TOI178_c = rebound.Particle(simulation=sim,primary=TOI178,m=masses[2], P=P[1], l=lambd[1],r=R[1],inc=incl[1])
+  TOI178_d = rebound.Particle(simulation=sim,primary=TOI178,m=masses[3], P=P[2], l=lambd[2],r=R[2],inc=incl[2])
+  TOI178_e = rebound.Particle(simulation=sim,primary=TOI178,m=masses[4], P=P[3], l=lambd[3],r=R[3],inc=incl[3])
+  TOI178_f = rebound.Particle(simulation=sim,primary=TOI178,m=masses[5], P=P[4], l=lambd[4],r=R[4],inc=incl[4])
+  TOI178_g = rebound.Particle(simulation=sim,primary=TOI178,m=masses[6], P=P[5], l=lambd[5],r=R[5],inc=incl[5])
   
   sim.add(TOI178_b)
   sim.add(TOI178_c)
@@ -251,3 +251,66 @@ a=0.2, m=0.001
 6min 
 """
 
+"""
+a=0.2, m=0.003
+Laufzeit: 6.01 Minuten
+Peak-Speicherverbrauch: 71.0 MB
+"""
+
+"""
+a=0.2, m=0.005
+Laufzeit: 6.08 Minuten
+Peak-Speicherverbrauch: 71.0 MB
+0.0132s pro Orbit
+"""
+
+
+"""
+a=0.3, m=0.003
+Laufzeit: 2.38 Minuten
+Peak-Speicherverbrauch: 71.0 MB
+"""
+
+"""
+a=0.3, m=0.005
+Laufzeit: 2.39 Minuten
+Peak-Speicherverbrauch: 70.0 MB
+"""
+
+"""
+a=0.3, m=0.007
+Laufzeit: 2.39 Minuten
+Peak-Speicherverbrauch: 71.0 MB
+"""
+
+
+
+"""
+a=0.4, m=0.001
+Laufzeit: 1.67 Minuten
+Peak-Speicherverbrauch: 71.0 MB
+"""
+
+"""
+a=0.4, m=0.003
+Laufzeit: 1.67 Minuten
+Peak-Speicherverbrauch: 71.0 MB
+"""
+
+"""
+a=0.4, m=0.005
+Laufzeit: 1.66 Minuten
+Peak-Speicherverbrauch: 70.0 MB
+"""
+
+"""
+a=0.4, m=0.007
+Laufzeit: 1.67 Minuten
+Peak-Speicherverbrauch: 72.0 MB
+"""
+
+"""
+a=0.12, m=0.0001
+Laufzeit: 11.21 Minuten
+Peak-Speicherverbrauch: 70.0 MB
+"""

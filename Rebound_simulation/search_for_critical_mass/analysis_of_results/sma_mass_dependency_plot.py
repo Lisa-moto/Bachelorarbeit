@@ -80,8 +80,9 @@ def plot_resonance_breaking(df, save_path=None, log_y=True):
         # Hauptplot: nur Punkte, keine Verbindungslinien
         ax.scatter(
             sma[has_break], mass[has_break],
-            s=18, marker=markers[angle], color=colors[angle],
-            alpha=0.8, label=labels[angle]
+            s=10 if angle == "psi1" else 18, marker=markers[angle], color=colors[angle],
+            alpha=0.8, label=labels[angle],
+            zorder=10 if angle == "psi1" else 1
         )
 
         # Zusatzplot: Striche dort, wo kein Bruch auftritt

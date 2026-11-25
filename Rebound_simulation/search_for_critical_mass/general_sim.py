@@ -1,0 +1,343 @@
+import numpy as np
+import rebound
+import os
+import functions
+from pathlib import Path
+
+# class for the case of an unstable moon (collision or ejection)
+class SimulationInstabilityError(Exception):
+    """
+    Wird ausgelöst, wenn der Mond durch Kollision oder Ejection instabil wird.
+    Enthält nur den Grund und den Zeitpunkt (in Jahren) des Abbruchs.
+    """
+    def __init__(self, reason, year):
+        self.reason = reason   # "collision" oder "ejection"
+        self.year = year       # Zeitpunkt des Abbruchs in Jahren
+        super().__init__(f"Simulation abgebrochen wegen '{reason}' bei t={year:.2f} Jahren")
+        
+
+# constants
+M_E=5.972e24
+M_S=1.989e30
+R_sun = 696340000
+AU = 1.5e11
+Rstar = 0.651*R_sun
+
+Ndays=5000*365.25
+orbit_time = 365.25
+day_in_second = 60*60*24
+
+Nt = 7 # 6 planets + 1 moon
+
+
+# Data from the paper for each planet and of the star
+# Masses with error
+masses = np.zeros(7)
+masses[0] = 0.65*M_S
+masses[1] = 1.5*M_E
+masses[2] = 4.77*M_E
+masses[3] = 3.01*M_E
+masses[4] = 3.86*M_E
+masses[5] = 7.72*M_E
+masses[6] = 3.94*M_E
+
+# semi-major axes
+sma = np.zeros(6)
+sma[0] = 0.02607*AU
+sma[1] = 0.03700*AU
+sma[2] = 0.05920*AU
+sma[3] = 0.07830*AU
+sma[4] = 0.10390*AU
+sma[5] = 0.12750*AU
+
+# physical Radius
+R = np.zeros(6)
+R[0] = 0.01623*Rstar
+R[1] = 0.0235*Rstar
+R[2] = 0.03623*Rstar
+R[3] = 0.0311*Rstar
+R[4] = 0.0322*Rstar
+R[5] = 0.0404*Rstar
+
+# Hill- radii
+Rh = np.zeros(6)
+Rh[0] = (masses[1]/(3*masses[0]))**(1/3)*sma[0]
+Rh[1] = (masses[2]/(3*masses[0]))**(1/3)*sma[1]
+Rh[2] = (masses[3]/(3*masses[0]))**(1/3)*sma[2]
+Rh[3] = (masses[4]/(3*masses[0]))**(1/3)*sma[3]
+Rh[4] = (masses[5]/(3*masses[0]))**(1/3)*sma[4]
+Rh[5] = (masses[6]/(3*masses[0]))**(1/3)*sma[5]
+
+# Periods
+P = np.zeros(6)
+P[0] = 1.914558*day_in_second
+P[1] = 3.238450*day_in_second
+P[2] = 6.557700*day_in_second
+P[3] = 9.961881*day_in_second
+P[4] = 15.231915*day_in_second
+P[5] = 20.70950*day_in_second
+
+### Zeitliche Auflösung: 3 Datenpunkte pro Orbit des äußersten Planeten (g) ###
+POINTS_PER_OUTER_ORBIT = 3
+output_dt = P[5] / POINTS_PER_OUTER_ORBIT          # Sekunden zwischen zwei Ausgabepunkten
+Nsteps = int(round(Ndays*day_in_second / output_dt)) + 1
+times = np.linspace(0, Ndays*day_in_second, Nsteps)
+timestep = (times[2]-times[1])
+
+# Transit time in the observation
+T0 = np.zeros(6)
+T0[0] = 2458741.6365
+T0[1] = 2458741.4783
+T0[2] = 2458747.14623
+T0[3] = 2458751.4658
+T0[4] = 2458745.7178
+T0[5] = 2458748.0302
+
+# relative inclinations
+incl = np.zeros(6)
+incl[0] = np.deg2rad(0.4)
+incl[1] = np.deg2rad(0)
+incl[2] = np.deg2rad(0.18)
+incl[3] = np.deg2rad(0.31)
+incl[4] = np.deg2rad(0.323)
+incl[5] = np.deg2rad(0.523)
+
+### day zero date in JBD ###
+date_ci = 2458354
+
+### Calculation of initial position in orbit for each planet ###
+lambd = np.zeros(6)
+for i in range(6): 
+  lambd[i] = -(2*np.pi/P[i])*((T0[i]-date_ci)*day_in_second)-np.pi/2
+
+### maximum distance for a body to be considered in the simulation ###
+EXIT_MAX_DISTANCE = 5*sma[5]
+
+### Kontrollpunkte für frühzeitigen Abbruch (in Jahren) ###
+CHECKPOINT_YEARS = list(range(300, 5000, 100))
+
+
+def _checkpoint_index(year):
+    """Index in 'times', der dem gegebenen Jahr am nächsten liegt (aufgerundet)."""
+    target_seconds = year * 365.25 * day_in_second
+    idx = np.searchsorted(times, target_seconds, side='left')
+    return min(idx, Nsteps - 1)
+
+def setupSimulation(a, m, host_planet_idx=4):
+# Setting up the Simulation
+  sim = rebound.Simulation()
+  sim.collision = 'direct'
+  sim.collision_resolve = 'halt'
+  sim.G = 6.6743e-11
+
+  # moon parameters
+  r_moon = 0.0001*Rh[host_planet_idx]  # radius of the moon
+  inc_moon = incl[host_planet_idx] # inclination of the moon's orbit equal to the inclination of the host planet
+  a_moon = a*Rh[host_planet_idx]
+  moon_mass = m*masses[host_planet_idx+1]
+
+  
+  # placing the planets and the star
+
+  TOI178 = rebound.Particle(m=masses[0],r=Rstar)
+  sim.add(TOI178)
+  TOI178_b = rebound.Particle(simulation=sim,primary=TOI178,m=masses[1], P=P[0], l=lambd[0],r=R[0],inc=incl[0])
+  TOI178_c = rebound.Particle(simulation=sim,primary=TOI178,m=masses[2], P=P[1], l=lambd[1],r=R[1],inc=incl[1])
+  TOI178_d = rebound.Particle(simulation=sim,primary=TOI178,m=masses[3], P=P[2], l=lambd[2],r=R[2],inc=incl[2])
+  TOI178_e = rebound.Particle(simulation=sim,primary=TOI178,m=masses[4], P=P[3], l=lambd[3],r=R[3],inc=incl[3])
+  TOI178_f = rebound.Particle(simulation=sim,primary=TOI178,m=masses[5], P=P[4], l=lambd[4],r=R[4],inc=incl[4])
+  TOI178_g = rebound.Particle(simulation=sim,primary=TOI178,m=masses[6], P=P[5], l=lambd[5],r=R[5],inc=incl[5])
+  
+  sim.add(TOI178_b)
+  sim.add(TOI178_c)
+  sim.add(TOI178_d)
+  sim.add(TOI178_e)
+  sim.add(TOI178_f)
+  sim.add(TOI178_g)
+  
+  
+  planet_letters = {0: "b", 1: "c", 2: "d", 3: "e", 4: "f", 5: "g"}
+  planet_particles = {
+      "b": TOI178_b,
+      "c": TOI178_c,
+      "d": TOI178_d,
+      "e": TOI178_e,
+      "f": TOI178_f,
+      "g": TOI178_g,
+  }
+  
+  # Mond zu host planet hinzufügen
+  TOI178_moon = rebound.Particle(simulation=sim,primary=planet_particles[planet_letters[host_planet_idx]],m=moon_mass, r=r_moon, a=a_moon, inc=inc_moon)
+
+  sim.add(TOI178_moon)
+  
+
+  sim.move_to_com()
+  
+  return sim
+
+
+def simulation(sim, host_planet_idx=4):
+  ### Definig simulation calculation and data entries ###
+  N = sim.N
+  ecc = np.zeros((Nsteps, Nt))
+  sma = np.zeros((Nsteps, Nt))
+  inc = np.zeros((Nsteps, Nt))
+  omega = np.zeros((Nsteps, Nt))
+  longitude = np.zeros((Nsteps, Nt))
+  orbital_node = np.zeros((Nsteps, Nt))
+  xyz_host_planet = np.zeros((Nsteps,3))
+  xyz_moon = np.zeros((Nsteps,3))
+
+  sim.exit_max_distance = EXIT_MAX_DISTANCE
+
+  # Array-Indizes der Kontrollpunkte, an denen zwischenzeitlich geprüft wird
+  checkpoint_indices = set(_checkpoint_index(y) for y in CHECKPOINT_YEARS)
+
+  # Merkt sich pro Winkel, bei welchem Jahr er zum ersten Mal nicht mehr
+  # resonant war. None = bislang (noch) resonant.
+  break_year = {"psi1": None, "psi2": None, "psi3": None}
+
+  actual_steps = Nsteps  # wird bei frühem Abbruch reduziert
+
+  for i, t in enumerate(times):
+    try:
+      sim.integrate(t, exact_finish_time=0)
+    except rebound.Collision:
+      raise SimulationInstabilityError("collision", sim.t / day_in_second / 365.25) from None
+    except rebound.Escape:
+      raise SimulationInstabilityError("ejection", sim.t / day_in_second / 365.25) from None
+
+    N = sim.N
+    ps = sim.particles
+
+    for j in range(1, N):
+      ecc[i, j-1] = ps[j].e
+      sma[i, j-1] = ps[j].a / AU
+      inc[i, j-1] = np.rad2deg(ps[j].inc)
+      omega[i, j-1] = ps[j].pomega
+      longitude[i, j-1] = ps[j].l
+      orbital_node[i, j-1] = ps[j].Omega
+
+    idx_host_planet = host_planet_idx + 1   # Index des Host-Planeten in sim.particles
+    idx_moon = 7
+
+    xyz_host_planet[i, 0] = ps[idx_host_planet].x
+    xyz_host_planet[i, 1] = ps[idx_host_planet].y
+    xyz_host_planet[i, 2] = ps[idx_host_planet].z
+
+    xyz_moon[i, 0] = ps[idx_moon].x
+    xyz_moon[i, 1] = ps[idx_moon].y
+    xyz_moon[i, 2] = ps[idx_moon].z
+
+    o = ps[idx_moon].orbit(primary=ps[idx_host_planet])
+    ecc[i, idx_moon-1] = o.e
+    sma[i, idx_moon-1] = o.a / AU
+    inc[i, idx_moon-1] = np.rad2deg(o.inc)
+    omega[i, idx_moon-1] = o.pomega
+    longitude[i, idx_moon-1] = o.l
+    orbital_node[i, idx_moon-1] = o.Omega
+
+    dx = ps[idx_moon].x - ps[idx_host_planet].x
+    dy = ps[idx_moon].y - ps[idx_host_planet].y
+    dz = ps[idx_moon].z - ps[idx_host_planet].z
+    dist_moon_host_planet = np.sqrt(dx**2 + dy**2 + dz**2)
+
+    if o.e >= 1.0 or dist_moon_host_planet > Rh[host_planet_idx]:
+      raise SimulationInstabilityError("ejection", t / day_in_second / 365.25)
+
+    # --- Zwischen-Check an den Kontrollpunkten ---
+    if i in checkpoint_indices:
+      year_now = t / day_in_second / 365.25
+      psi1, psi2, psi3 = functions.laplace_angles(longitude[:i+1])
+      still_resonant = {
+          "psi1": functions.is_laplace_resonant(psi1),
+          "psi2": functions.is_laplace_resonant(psi2),
+          "psi3": functions.is_laplace_resonant(psi3),
+      }
+      for key, resonant in still_resonant.items():
+        if not resonant and break_year[key] is None:
+          break_year[key] = year_now
+
+      # Wenn alle drei Winkel bereits gebrochen sind, bringt weiteres
+      # Integrieren keine zusätzliche Information -> früh abbrechen.
+      if all(v is not None for v in break_year.values()):
+        actual_steps = i + 1
+        break
+
+    if i % 10000 == 0:
+      print("The time is %5d years "% (t/(60*60*24*365.25)))
+
+  # Arrays auf die tatsächlich berechneten Schritte kürzen
+  ecc = ecc[:actual_steps]
+  sma = sma[:actual_steps]
+  inc = inc[:actual_steps]
+  omega = omega[:actual_steps]
+  longitude = longitude[:actual_steps]
+  orbital_node = orbital_node[:actual_steps]
+  xyz_host_planet = xyz_host_planet[:actual_steps]
+  xyz_moon = xyz_moon[:actual_steps]
+
+  # Abschluss-Check (nach 5000 Jahren): Winkel, die bis hierhin noch nicht als gebrochen
+  # markiert wurden, final anhand der vollständigen (bzw. bis zum frühen
+  # Abbruch vorhandenen) Zeitreihe prüfen
+  end_year = times[actual_steps-1] / day_in_second / 365.25
+  psi1, psi2, psi3 = functions.laplace_angles(longitude)
+  final_resonant = {
+      "psi1": functions.is_laplace_resonant(psi1),
+      "psi2": functions.is_laplace_resonant(psi2),
+      "psi3": functions.is_laplace_resonant(psi3),
+  }
+  for key, resonant in final_resonant.items():
+    if not resonant and break_year[key] is None:
+      break_year[key] = end_year
+      
+  early_stop = actual_steps < Nsteps   # True, wenn wegen "alle 3 gebrochen" früh abgebrochen wurde
+
+  return ecc, sma, inc, omega, longitude, orbital_node, xyz_host_planet, xyz_moon, break_year, end_year, early_stop
+
+
+def safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_host_planet, xyz_moon,
+              a, m, break_year, end_year, early_stop, base_dir="critical_mass_search"):
+
+  windows = functions.compute_save_windows(break_year, end_year, early_stop)
+
+  actual_steps = ecc.shape[0]
+  years = times[:actual_steps] / day_in_second / 365.25
+
+  mask = np.zeros(actual_steps, dtype=bool)
+  for start, stop in windows:
+    mask |= (years >= start) & (years <= stop)
+
+  years_col = years[mask].reshape(-1, 1).astype(np.float32)
+
+  def with_years(arr):
+    return np.hstack([years_col, arr[mask].astype(np.float32)]).astype(np.float32)
+
+  # simulation_data/a=0.100000/a=0.100000_m=1.000000e-05.npz
+  tag = f"a={a:.6f}_m={m:.6e}"
+  output_dir = Path(base_dir) / "simulation_data" / f"a={a:.6f}"
+  output_dir.mkdir(parents=True, exist_ok=True)
+
+  tmp_path = output_dir / f"{tag}.tmp.npz"
+  np.savez(
+    tmp_path,
+    ecc=with_years(ecc),
+    sma=with_years(sma),
+    inc=with_years(inc),
+    orbital_node=with_years(orbital_node),
+    omega=with_years(omega),
+    l=with_years(longitude),
+    xyz_host_planet=with_years(xyz_host_planet),
+    xyz_moon=with_years(xyz_moon),
+  )
+  os.replace(tmp_path, output_dir / f"{tag}.npz")
+
+  """ np.save(output_dir / "ecc.npy", with_years(ecc))
+  np.save(output_dir / "sma.npy", with_years(sma))
+  np.save(output_dir / "inc.npy", with_years(inc))
+  np.save(output_dir / "orbital_node.npy", with_years(orbital_node))
+  np.save(output_dir / "omega.npy", with_years(omega))
+  np.save(output_dir / "l.npy", with_years(longitude))
+  np.save(output_dir / "xyz_f.npy", with_years(xyz_f))
+  np.save(output_dir / "xyz_moon.npy", with_years(xyz_moon)) """

@@ -1,0 +1,6 @@
+2026-11-25T08:51:16.252Z [INFO] Native runtime logging initialized
+2026-11-25T08:51:16.366Z [WARNING] [rust:standalone_host::standalone::transport] Unable to locate runtime-bundled skills beside the native runtime
+2026-11-25T08:51:17.832Z [INFO] [rust:rt_managed_settings_ingest] [managedSettings] device MDM: no policy present on this device
+2026-11-25T08:51:17.832Z [INFO] [rust:rt_managed_settings_ingest] [managedSettings] server policy: none for this account (404: no configured policy) from https://github.com
+2026-11-25T08:51:17.833Z [INFO] [rust:rt_managed_settings_ingest] [managedSettings] effective policy resolved: source=none, bypassDisabled=false, serverFetchFailed=false, policyHelperConfigured=false, policyHelperAuthority=none, policyHelperFailed=false, policyHelperFailClosed=false, policyHelperContributedSandbox=false
+2026-11-25T09:32:11.493Z [WARNING] [rust:standalone_host::standalone] Standalone JSON-RPC one-way host call failed {"error":"Standalone server does not support host call 'lifecycle_server_shutdown_finalize'"}

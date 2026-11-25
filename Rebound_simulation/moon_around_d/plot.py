@@ -2,8 +2,8 @@ import os
 import numpy as np
 import plot_funtions as pf
 
-m_short = 0.005  # mass of the moon relative to host planet
-a_short = 0.2  # semi major axis of the moon relative to host planet
+m_short = 0.007  # mass of the moon relative to host planet
+a_short = 0.4  # semi major axis of the moon relative to host planet
 
 ##########################################################################################
 # load data
@@ -12,14 +12,14 @@ a_short = 0.2  # semi major axis of the moon relative to host planet
 here = os.path.dirname(__file__)
 
 # filenames
-f_sma = os.path.join(here, f'data_moon_around_b/data_moon_a={a_short}/sma_moon_a={a_short}_m={m_short}.txt')
-f_longitude = os.path.join(here, f'data_moon_around_b/data_moon_a={a_short}/l_moon_a={a_short}_m={m_short}.txt')
-f_omega = os.path.join(here, f'data_moon_around_b/data_moon_a={a_short}/omega_moon_a={a_short}_m={m_short}.txt')
-f_node = os.path.join(here, f'data_moon_around_b/data_moon_a={a_short}/orbital_node_moon_a={a_short}_m={m_short}.txt')
-f_ecc = os.path.join(here, f'data_moon_around_b/data_moon_a={a_short}/ecc_moon_a={a_short}_m={m_short}.txt')
-f_inc = os.path.join(here, f'data_moon_around_b/data_moon_a={a_short}/inc_moon_a={a_short}_m={m_short}.txt')
-f_xyz_host_planet = os.path.join(here, f'data_moon_around_b/data_moon_a={a_short}/xyz_host_planet_a={a_short}_m={m_short}.txt')
-f_xyz_moon = os.path.join(here, f'data_moon_around_b/data_moon_a={a_short}/xyz_moon_a={a_short}_m={m_short}.txt')
+f_sma = os.path.join(here, f'data_moon_around_d/data_moon_a={a_short}/sma_moon_a={a_short}_m={m_short}.txt')
+f_longitude = os.path.join(here, f'data_moon_around_d/data_moon_a={a_short}/l_moon_a={a_short}_m={m_short}.txt')
+f_omega = os.path.join(here, f'data_moon_around_d/data_moon_a={a_short}/omega_moon_a={a_short}_m={m_short}.txt')
+f_node = os.path.join(here, f'data_moon_around_d/data_moon_a={a_short}/orbital_node_moon_a={a_short}_m={m_short}.txt')
+f_ecc = os.path.join(here, f'data_moon_around_d/data_moon_a={a_short}/ecc_moon_a={a_short}_m={m_short}.txt')
+f_inc = os.path.join(here, f'data_moon_around_d/data_moon_a={a_short}/inc_moon_a={a_short}_m={m_short}.txt')
+f_xyz_host_planet = os.path.join(here, f'data_moon_around_d/data_moon_a={a_short}/xyz_host_planet_a={a_short}_m={m_short}.txt')
+f_xyz_moon = os.path.join(here, f'data_moon_around_d/data_moon_a={a_short}/xyz_moon_a={a_short}_m={m_short}.txt')
 
 # load
 # shape: (nsteps, nplanets)
