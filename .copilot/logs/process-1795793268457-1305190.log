@@ -1,0 +1,5 @@
+2026-11-27T15:27:48.764Z [INFO] Native runtime logging initialized
+2026-11-27T15:27:49.888Z [WARNING] [rust:standalone_host::standalone::transport] Unable to locate runtime-bundled skills beside the native runtime
+2026-11-27T15:28:02.997Z [INFO] [rust:rt_managed_settings_ingest] [managedSettings] device MDM: no policy present on this device
+2026-11-27T15:28:02.997Z [WARNING] [rust:rt_managed_settings_ingest] [managedSettings] server policy fetch failed ([fetchManagedSettings] Network error: request failed: error sending request for url (https://api.github.com/copilot_internal/managed_settings?client_id=vscode-agent-host&client_version=1.0.114-unstable.r45286541461.g05667ac&copilot_runtime_version=1.0.114-unstable.r45286541461.g05667ac)) — using cached no-policy
+2026-11-27T15:28:03.013Z [INFO] [rust:rt_managed_settings_ingest] [managedSettings] effective policy resolved: source=none, bypassDisabled=false, serverFetchFailed=false, policyHelperConfigured=false, policyHelperAuthority=none, policyHelperFailed=false, policyHelperFailClosed=false, policyHelperContributedSandbox=false

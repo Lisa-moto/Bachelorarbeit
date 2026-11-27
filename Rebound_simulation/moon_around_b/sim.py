@@ -99,8 +99,8 @@ incl[5] = np.deg2rad(0.523)
 
 # moon parameters
 host_planet_index = 0  # b=0; c=1; d=2; e=3; f=4; g=5
-a_moon = 0.15*Rh[host_planet_index]    # semi-major axis of the moon
-moon_mass = 0.0001*masses[host_planet_index+1]  # for mass, add 1 to planet_index
+a_moon = 0.143*Rh[host_planet_index]    # semi-major axis of the moon
+moon_mass = 0.00001*masses[host_planet_index+1]  # for mass, add 1 to planet_index
 r_moon = 0.0001*Rh[host_planet_index]  # radius of the moon
 inc_moon = incl[host_planet_index]  # inclination of the moon's orbit; same as inclination of host planet
 a_moon_short = a_moon/Rh[host_planet_index]
@@ -245,6 +245,13 @@ print(f"Laufzeit: {(t1 - t0)/60:.2f} Minuten")
 # Spitzenspeicherverbrauch (Peak RSS) des Prozesses seit Start
 peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 print(f"Peak-Speicherverbrauch: {peak_kb / 1024:.1f} MB")
+
+
+"""
+a=0.143, m=0.00001
+Laufzeit: 30.50 Minuten
+Peak-Speicherverbrauch: 71.0 MB
+"""
 
 
 """

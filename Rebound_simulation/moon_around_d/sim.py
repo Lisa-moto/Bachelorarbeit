@@ -15,10 +15,10 @@ R_sun = 696340000
 AU = 1.5e11
 Rstar = 0.651*R_sun
 
-Ndays=500*365.25
+Ndays=5000*365.25
 orbit_time = 365.25
 day_in_second = 60*60*24
-Nsteps = 10000
+Nsteps = 100000
 times = np.linspace(0, Ndays*day_in_second, Nsteps)
 timestep = (times[2]-times[1])
 Nt = 7 # 6 planets + 1 moon
@@ -99,8 +99,8 @@ incl[5] = np.deg2rad(0.523)
 
 # moon parameters
 host_planet_index = 2  # b=0; c=1; d=2; e=3; f=4; g=5
-a_moon = 0.12*Rh[host_planet_index]    # semi-major axis of the moon
-moon_mass = 0.0001*masses[host_planet_index+1]  # for mass, add 1 to planet_index
+a_moon = 0.112*Rh[host_planet_index]    # semi-major axis of the moon
+moon_mass = 0.00001*masses[host_planet_index+1]  # for mass, add 1 to planet_index
 r_moon = 0.0001*Rh[host_planet_index]  # radius of the moon
 inc_moon = incl[host_planet_index]  # inclination of the moon's orbit; same as inclination of host planet
 a_moon_short = a_moon/Rh[host_planet_index]
@@ -204,8 +204,8 @@ def simulation(sim):
     sma[i, idx_moon-1] = o.a / AU
 
     
-    
-    print("The time is %5d years "% (t/(60*60*24*365.25)))
+    if i % 1000 == 0:
+      print("The time is %5d years "% (t/(60*60*24*365.25)))
 
 
 
@@ -225,7 +225,7 @@ print("Anzahl der particles nach Simulation: ", sim.N)
 # save date in new directory data_with_moon
 
 def safe_data(ecc, sma, inc, omega, longitude, orbital_node, xyz_host_planet, xyz_moon, a, m):
-  output_dir = f'data_moon_around_d/data_moon_a={a}'
+  output_dir = f'data_moon_around_d_5000years/data_moon_a={a}'
   os.makedirs(output_dir, exist_ok=True)
 
   np.savetxt(f'{output_dir}/ecc_moon_a={a}_m={m}.txt', ecc)
@@ -245,6 +245,15 @@ print(f"Laufzeit: {(t1 - t0)/60:.2f} Minuten")
 # Spitzenspeicherverbrauch (Peak RSS) des Prozesses seit Start
 peak_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 print(f"Peak-Speicherverbrauch: {peak_kb / 1024:.1f} MB")
+
+
+"""
+a=0.112, m=0.00001
+Laufzeit: 12.30 Minuten
+Peak-Speicherverbrauch: 72.0 MB
+"""
+
+
 
 """
 a=0.2, m=0.001
